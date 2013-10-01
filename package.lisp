@@ -1,5 +1,5 @@
 ;;;; package.lisp
 
-(defpackage #:supportcentre
-  (:use #:cl))
-
+(restas:define-module #:supportcentre
+  (:use #:cl)
+  (:render-method #'supportcentre.view:main))

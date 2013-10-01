@@ -1,0 +1,25 @@
+{namespace supportcentre.view}
+
+{template main}
+  <html>
+    <head>
+      <title>{$title}</title>
+    </head>
+    <body>
+      {$body | noAutoescape}
+    </body>
+  </html>
+{/template}
+
+{template issueList}
+  <table>
+    <tr><th>Id</th><th>Subject</th></tr>
+    {foreach $issue in $issues}
+      {call issueRow data="$issue" /}
+    {/foreach}
+  </table>
+{/template}
+
+{template issueRow}
+  <tr><td>{$id}<td>{$subject}</td></tr>
+{/template}
