@@ -27,3 +27,10 @@
 {template issue}
   <h1>Issue #{$issue.id}: {$issue.subject}</h1>
 {/template}
+
+{template createIssue}
+  <form method="post">
+    Subject: <input name="subject" type="text" />
+    <input type="submit" value="save" name="save" />
+  </form>
+{/template}

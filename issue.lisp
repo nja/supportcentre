@@ -4,7 +4,8 @@
   (let ((id (red:incr "issue:next-id")))
     (red:sadd "issue:ids" id)
     (red:set (make-key :issue id)
-             (serialize-list issue))))
+             (serialize-list issue))
+    id))
 
 (defun get-all-issues ()
   (let ((ids (get-issue-ids)))
