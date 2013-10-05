@@ -62,7 +62,8 @@
     (let ((serialized (serialize thing))
           (key (storage-key thing))
           (sets-key (sets-key (storage-type thing) (storage-id thing))))
-      (prog1 (red:set key serialized)
+      (redis:with-pipelining
+        (red:set key serialized)
         (red:set sets-key (serialize (storage-sets thing)))
         (dolist (set (storage-sets thing))
           (red:sadd (set-key (storage-type thing) set) (storage-id thing)))))))
