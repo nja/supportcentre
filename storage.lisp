@@ -25,26 +25,18 @@
 
 (defgeneric storage-key (thing)
   (:method ((thing storable))
-    (make-key (storage-type thing) (storage-id thing))))
+    (thing-key (storage-type thing) (storage-id thing))))
 
 (defgeneric storage-create (thing)
   (:method ((thing storable))
-    (let ((serialized (serialize thing))
-          (key (storage-key thing))
-          (sets-key (sets-key (storage-type thing) (storage-id thing))))
-      (prog1 (red:set key serialized)
-        (red:set sets-key (serialize (storage-sets thing)))
-        (dolist (set (storage-sets thing))
-          (red:sadd (set-key (storage-type thing) set) (storage-id thing)))))))
-
-(defmethod storage-create :before (storable)
-  (let ((id (red:incr (next-id-key storable))))
-    (setf (storage-id storable) id)))
+    (let ((id (red:incr (next-id-key thing))))
+      (setf (storage-id thing) id)
+      (storage-update thing))))
 
 (defgeneric storage-read (type id)
   (:method ((type symbol) id)
     (apply #'create type id (redis:with-pipelining
-                              (red:get (make-key type id))
+                              (red:get (thing-key type id))
                               (red:get (sets-key type id))))))
 
 (defun create (type id thing-string sets-string)
@@ -56,18 +48,24 @@
 
 (defgeneric storage-read-set (type set)
   (:method ((type symbol) set)
-    (let ((ids (red:smembers (set-key type set))))
-      (mapcar #'(lambda (id thing-string set-string)
-                  (create type id thing-string set-string))
-              ids
-              (redis:with-pipelining
-                (dolist (id ids)
-                  (red:get (make-key type id))))
-              (redis:with-pipelining
-                (dolist (id ids)
-                  (red:get (sets-key type id))))))))
+    (let* ((ids (red:smembers (set-key type set)))
+           (data (redis:with-pipelining
+                   (dolist (id ids)
+                     (red:get (thing-key type id))
+                     (red:get (sets-key type id))))))
+      (loop for id in ids
+            for (thing-string set-string) on data by #'cddr
+            collect (create type id thing-string set-string)))))
 
-(defgeneric storage-update (storable))
+(defgeneric storage-update (thing)
+  (:method ((thing storable))
+    (let ((serialized (serialize thing))
+          (key (storage-key thing))
+          (sets-key (sets-key (storage-type thing) (storage-id thing))))
+      (prog1 (red:set key serialized)
+        (red:set sets-key (serialize (storage-sets thing)))
+        (dolist (set (storage-sets thing))
+          (red:sadd (set-key (storage-type thing) set) (storage-id thing)))))))
 
 (defun next-id-key (storable)
   (make-key 'next-id (storage-type storable)))
@@ -80,6 +78,9 @@
 
 (defun next-id (storable)
   (red:incr (next-id-key storable)))
+
+(defun thing-key (type id)
+  (make-key type id))
 
 (defun make-key (prefix suffix &rest more)
   (if more
