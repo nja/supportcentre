@@ -2,7 +2,7 @@
 
 (defclass storable ()
   ((id :initarg :id :accessor storage-id)
-   (sets :initarg :sets :initform nil :accessor storage-sets)))
+   (sets :initarg :sets :initform (list :all) :accessor storage-sets)))
 
 (defgeneric serialize (thing)
   (:method ((thing list))
