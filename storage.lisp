@@ -31,7 +31,7 @@
   (:method ((thing storable))
     (let ((id (red:incr (next-id-key thing))))
       (setf (storage-id thing) id)
-      (storage-update thing))))
+      (values id (storage-update thing)))))
 
 (defgeneric storage-read (type id)
   (:method ((type symbol) id)
