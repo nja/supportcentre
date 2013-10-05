@@ -11,5 +11,6 @@
                (:file "package")
                (:file "util" :depends-on ("package"))
                (:file "storage" :depends-on ("package"))
-               (:file "issue" :depends-on ("util"))
+               (:file "user" :depends-on ("storage"))
+               (:file "issue" :depends-on ("storage"))
                (:file "routes")))
