@@ -13,7 +13,7 @@
 
 {template issueList}
   <table>
-    <tr><th>Id</th><th>Subject</th></tr>
+    <tr><th>Id</th><th>Subject</th><th>Created by</th></tr>
     {foreach $issue in $issues}
       {call issueRow data="$issue" /}
     {/foreach}
@@ -21,7 +21,11 @@
 {/template}
 
 {template issueRow}
-  <tr><td>{$id}<td>{$subject}</td></tr>
+  <tr>
+    <td>{$id}</td>
+    <td>{$subject}</td>
+    <td>{$creator.name}</td>
+  </tr>
 {/template}
 
 {template issue}

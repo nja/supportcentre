@@ -5,15 +5,15 @@
         :body (supportcentre.view:issue-list
                (list :issues
                      (redis:with-persistent-connection ()
-                       (get-all-issues))))))
+                       (storage-read-set 'issue :all))))))
 
 (restas:define-route issue ("/issue/:id")
   (let ((issue (redis:with-persistent-connection ()
-                 (get-issue id))))
+                 (storage-read 'issue id))))
     (if issue
         (list :title (format nil "Issue #~a: ~a"
-                             (getf issue :id)
-                             (getf issue :subject))
+                             (storage-id issue)
+                             (issue-subject issue))
               :body (supportcentre.view:issue
                      (list :issue issue)))
         hunchentoot:+HTTP-NOT-FOUND+)))
@@ -25,5 +25,9 @@
 (restas:define-route create-issue/post ("/issue/new/" :method :post)
   (:requirement #'(lambda () (hunchentoot:post-parameter "save")))
   (let ((id (redis:with-persistent-connection ()
-              (save-issue (list :subject (hunchentoot:post-parameter "subject"))))))
+              (storage-create (make-instance 'issue
+                                             :subject
+                                             (hunchentoot:post-parameter "subject")
+                                             :creator
+                                             (storage-read 'user 1))))))
     (restas:redirect (restas:genurl 'issue :id id))))
