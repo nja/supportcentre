@@ -8,5 +8,9 @@
     (print list out)))
 
 (defun deserialize-list (string)
-  (let ((*read-eval* nil))
-    (read-from-string string)))
+  (when string
+    (let ((*read-eval* nil))
+      (read-from-string string))))
+
+(defun set-id (plist id)
+  (nconc (list :id id) plist))

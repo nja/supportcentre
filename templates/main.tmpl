@@ -23,3 +23,7 @@
 {template issueRow}
   <tr><td>{$id}<td>{$subject}</td></tr>
 {/template}
+
+{template issue}
+  <h1>Issue #{$issue.id}: {$issue.subject}</h1>
+{/template}

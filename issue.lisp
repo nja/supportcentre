@@ -9,8 +9,8 @@
 (defun get-all-issues ()
   (let ((ids (get-issue-ids)))
     (mapcar (lambda (issue id)
-              (nconc (list :id id)
-                     (deserialize-list issue)))
+              (set-id (deserialize-list issue)
+                      id))
             (redis:with-pipelining
               (dolist (id ids)
                 (red:get (make-key :issue id))))
@@ -20,4 +20,6 @@
   (red:smembers "issue:ids"))
 
 (defun get-issue (id)
-  (deserialize-list (red:get (make-key :issue id))))
+  (let ((issue (deserialize-list (red:get (make-key :issue id)))))
+    (when issue
+      (set-id issue id))))
