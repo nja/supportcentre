@@ -39,6 +39,16 @@
                               (red:get (thing-key type id))
                               (red:get (sets-key type id))))))
 
+(defgeneric storage-read-many (type ids)
+  (:method ((type symbol) ids)
+    (let ((data (redis:with-pipelining
+                  (dolist (id ids)
+                    (red:get (thing-key type id))
+                    (red:get (sets-key type id))))))
+      (loop for id in ids
+            for (thing-string set-string) on data by #'cddr
+            collect (create type id thing-string set-string)))))
+
 (defun create (type id thing-string sets-string)
   (let ((thing (deserialize type thing-string))
         (sets (deserialize 'list sets-string)))
@@ -48,14 +58,7 @@
 
 (defgeneric storage-read-set (type set)
   (:method ((type symbol) set)
-    (let* ((ids (red:smembers (set-key type set)))
-           (data (redis:with-pipelining
-                   (dolist (id ids)
-                     (red:get (thing-key type id))
-                     (red:get (sets-key type id))))))
-      (loop for id in ids
-            for (thing-string set-string) on data by #'cddr
-            collect (create type id thing-string set-string)))))
+    (storage-read-many type (red:smembers (set-key type set)))))
 
 (defgeneric storage-update (thing)
   (:method ((thing storable))
