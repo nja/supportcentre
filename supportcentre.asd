@@ -10,5 +10,6 @@
   :components ((:closure-template "templates/main")
                (:file "package")
                (:file "util" :depends-on ("package"))
+               (:file "storage" :depends-on ("package"))
                (:file "issue" :depends-on ("util"))
                (:file "routes")))
