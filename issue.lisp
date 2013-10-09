@@ -24,5 +24,5 @@
 
 (defmethod storage-read :around ((type (eql 'issue)) ids)
   (let ((user (call-next-method)))
-    (set-users (list user))
+    (when user (set-users (list user)))
     user))
