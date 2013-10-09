@@ -45,3 +45,20 @@
                       (when session
                         (as-text (hunchentoot:remove-session session))))
                     (your-session))))
+
+(restas:define-route register ("/register/")
+  (list :title "Register an account"
+        :body (supportcentre.view:register)))
+
+(restas:define-route register/post ("/register/" :method :post)
+  (:requirement #'(lambda () (hunchentoot:post-parameter "register")))
+  (let ((user (make-instance 'user
+                             :name (hunchentoot:post-parameter "username")
+                             :realname (hunchentoot:post-parameter "realname"))))
+    (redis:with-persistent-connection ()
+      (storage-create user))
+    (list :title "Register"
+          :body (format nil "Registered ~A (~A) #~D"
+                        (user-name user)
+                        (user-realname user)
+                        (storage-id user)))))
