@@ -1,75 +1,79 @@
 (in-package #:supportcentre)
 
+(defgeneric serialize (thing))
+(defgeneric deserialize (type string))
+(defgeneric storage-type (thing))
+(defgeneric storage-key (thing))
+(defgeneric storage-create (thing))
+(defgeneric storage-read (type id))
+(defgeneric storage-read-many (type ids))
+(defgeneric storage-read-set (type set))
+(defgeneric storage-update (thing))
+
 (defclass storable ()
   ((id :initarg :id :accessor storage-id)
    (sets :initarg :sets :initform (list :all) :accessor storage-sets)))
 
-(defgeneric serialize (thing)
-  (:method ((thing list))
-    (with-output-to-string (out)
-      (prin1 thing out))))
+(defmethod serialize ((thing list))
+  (with-output-to-string (out)
+    (prin1 thing out)))
 
-(defgeneric deserialize (type string)
-  (:method (type (string (eql nil)))
-    nil)
-  (:method ((type (eql 'list)) string)
-    (when string
-      (values (safe-read string))))
-  (:method ((type symbol) (string string))
-    (let ((properties (safe-read string)))
-      (apply #'make-instance type properties))))
+(defmethod deserialize (type (string (eql nil)))
+  nil)
 
-(defgeneric storage-type (thing)
-  (:method ((thing storable))
-    (type-of thing)))
+(defmethod deserialize ((type (eql 'list)) string)
+  (when string
+    (values (safe-read string))))
 
-(defgeneric storage-key (thing)
-  (:method ((thing storable))
-    (thing-key (storage-type thing) (storage-id thing))))
+(defmethod deserialize ((type symbol) (string string))
+  (let ((properties (safe-read string)))
+    (apply #'make-instance type properties)))
 
-(defgeneric storage-create (thing)
-  (:method ((thing storable))
-    (let ((id (red:incr (next-id-key thing))))
-      (setf (storage-id thing) id)
-      (values id (storage-update thing)))))
+(defmethod storage-type ((thing storable))
+  (type-of thing))
 
-(defgeneric storage-read (type id)
-  (:method ((type symbol) id)
-    (apply #'create type id (redis:with-pipelining
-                              (red:get (thing-key type id))
-                              (red:get (sets-key type id))))))
+(defmethod storage-key ((thing storable))
+  (thing-key (storage-type thing) (storage-id thing)))
 
-(defgeneric storage-read-many (type ids)
-  (:method ((type symbol) ids)
-    (let ((data (redis:with-pipelining
-                  (dolist (id ids)
-                    (red:get (thing-key type id))
-                    (red:get (sets-key type id))))))
-      (loop for id in ids
-            for (thing-string set-string) on data by #'cddr
-            collect (create type id thing-string set-string)))))
+(defmethod storage-create ((thing storable))
+  (let ((id (red:incr (next-id-key thing))))
+    (setf (storage-id thing) id)
+    (values id (storage-update thing))))
+
+(defmethod storage-read ((type symbol) id)
+  (apply #'create type id (redis:with-pipelining
+                            (red:get (thing-key type id))
+                            (red:get (sets-key type id)))))
 
 (defun create (type id thing-string sets-string)
-  (let ((thing (deserialize type thing-string))
-        (sets (deserialize 'list sets-string)))
-    (setf (storage-id thing) id
-          (storage-sets thing) sets)
-    thing))
+  (when (and thing-string sets-string)
+    (let ((thing (deserialize type thing-string))
+          (sets (deserialize 'list sets-string)))
+      (setf (storage-id thing) id
+            (storage-sets thing) sets)
+      thing)))
 
-(defgeneric storage-read-set (type set)
-  (:method ((type symbol) set)
-    (storage-read-many type (red:smembers (set-key type set)))))
+(defmethod storage-read-many ((type symbol) ids)
+  (let ((data (redis:with-pipelining
+                (dolist (id ids)
+                  (red:get (thing-key type id))
+                  (red:get (sets-key type id))))))
+    (loop for id in ids
+          for (thing-string set-string) on data by #'cddr
+          collect (create type id thing-string set-string))))
 
-(defgeneric storage-update (thing)
-  (:method ((thing storable))
-    (let ((serialized (serialize thing))
-          (key (storage-key thing))
-          (sets-key (sets-key (storage-type thing) (storage-id thing))))
-      (redis:with-pipelining
-        (red:set key serialized)
-        (red:set sets-key (serialize (storage-sets thing)))
-        (dolist (set (storage-sets thing))
-          (red:sadd (set-key (storage-type thing) set) (storage-id thing)))))))
+(defmethod storage-read-set ((type symbol) set)
+    (storage-read-many type (red:smembers (set-key type set))))
+
+(defmethod storage-update ((thing storable))
+  (let ((serialized (serialize thing))
+        (key (storage-key thing))
+        (sets-key (sets-key (storage-type thing) (storage-id thing))))
+    (redis:with-pipelining
+      (red:set key serialized)
+      (red:set sets-key (serialize (storage-sets thing)))
+      (dolist (set (storage-sets thing))
+        (red:sadd (set-key (storage-type thing) set) (storage-id thing))))))
 
 (defun next-id-key (storable)
   (make-key 'next-id (storage-type storable)))
