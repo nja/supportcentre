@@ -31,3 +31,17 @@
                                              :creator
                                              (storage-read 'user 1))))))
     (restas:redirect (restas:genurl 'issue :id id))))
+
+(restas:define-route login ("/login/")
+  (list :title "Logged in"
+        :body (list (your-session)
+                    (as-text (hunchentoot:start-session))
+                    (your-session))))
+
+(restas:define-route logout ("/logout/")
+  (list :title "Logged out"
+        :body (list (your-session)
+                    (let ((session hunchentoot:*session*))
+                      (when session
+                        (as-text (hunchentoot:remove-session session))))
+                    (your-session))))
