@@ -60,10 +60,7 @@
   (let ((user (make-instance 'user
                              :name (post-parameter "username")
                              :realname (post-parameter "realname"))))
+    (set-password user (post-parameter "password"))
     (redis:with-persistent-connection ()
       (storage-create user))
-    (list :title "Register"
-          :body (format nil "Registered ~A (~A) #~D"
-                        (user-name user)
-                        (user-realname user)
-                        (storage-id user)))))
+    (restas:redirect (restas:genurl 'user :id (storage-id user)))))
