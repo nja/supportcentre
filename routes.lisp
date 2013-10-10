@@ -29,7 +29,7 @@
   (redis:with-persistent-connection ()
     (when-let (note (storage-read 'note note-id))
       (let ((issue (issue-of note)))
-        (when (equal issue-id (storage-id (issue-of note)))
+        (when (equal issue-id (storage-id issue))
           (list :title (format nil "Issue #~a: ~a"
                                issue-id
                                (subject-of issue))
