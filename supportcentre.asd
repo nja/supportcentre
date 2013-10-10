@@ -6,7 +6,7 @@
   :author "Johan Andersson <nilsjohanandersson@gmail.com>"
   :license "Proprietary"
   :defsystem-depends-on (#:closure-template)
-  :depends-on (#:restas #:closure-template #:cl-redis)
+  :depends-on (#:restas #:closure-template #:cl-redis #:alexandria #:ironclad)
   :components ((:closure-template "templates/main")
                (:closure-template "templates/user")
                (:closure-template "templates/issue")
