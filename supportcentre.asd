@@ -10,6 +10,7 @@
   :components ((:closure-template "templates/main")
                (:closure-template "templates/user")
                (:closure-template "templates/issue")
+               (:closure-template "templates/login")
                (:file "package")
                (:file "util" :depends-on ("package"))
                (:file "storage" :depends-on ("package"))
