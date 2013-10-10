@@ -20,13 +20,13 @@
   (:sift-variables (id 'integer))
   (:requirement #'(lambda () (post-parameter "save")))
   (redis:with-persistent-connection ()
-      (let* ((issue (storage-read 'issue id))
-             (note (make-instance 'note
-                                  :user-id (storage-id (get-user))
-                                  :issue-id  (storage-id issue)
-                                  :text (post-parameter "text"))))
-        (storage-create note)
-        (restas:redirect 'issue :id (storage-id issue)))))
+    (let* ((issue (storage-read 'issue id))
+           (note (make-instance 'note
+                                :user (get-user)
+                                :issue issue
+                                :text (post-parameter "text"))))
+      (storage-create note)
+      (restas:redirect 'issue :id (storage-id issue)))))
 
 (restas:define-route user ("/user/:id")
   (:sift-variables (id 'integer))
