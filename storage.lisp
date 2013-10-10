@@ -15,8 +15,7 @@
    (sets :initarg :sets :initform (list :all) :accessor storage-sets)))
 
 (defmethod serialize ((thing list))
-  (with-output-to-string (out)
-    (prin1 thing out)))
+  (prin1-to-string thing))
 
 (defmethod deserialize (type (string (eql nil)))
   nil)
