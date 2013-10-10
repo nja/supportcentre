@@ -6,6 +6,7 @@
                   (storage-read-set 'issue :all))))
 
 (restas:define-route issue ("/issue/:id")
+  (:sift-variables (id 'integer))
   (when-let (issue (redis:with-persistent-connection ()
                      (storage-read 'issue id)))
     (list :title (format nil "Issue #~a: ~a"
@@ -14,6 +15,7 @@
           :issue issue)))
 
 (restas:define-route user ("/user/:id")
+  (:sift-variables (id 'integer))
   (when-let (user (redis:with-persistent-connection ()
                     (storage-read 'user id)))
     (list :title (format nil "User ~D: ~A"
