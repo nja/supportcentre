@@ -17,6 +17,7 @@
                (:file "linkable" :depends-on ("storage"))
                (:file "user" :depends-on ("storage"))
                (:file "issue" :depends-on ("storage"))
+               (:file "note" :depends-on ("storage"))
                (:file "view")
                (:file "routes" :depends-on ("view"))))
 
