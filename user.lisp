@@ -38,7 +38,7 @@
     (setf (password-of user) digest)))
 
 (defun get-user ()
-  (when-let (user-id (hunchentoot:session-value 'user-id))
+  (when-let (user-id (parse-integer (hunchentoot:session-value 'user-id)))
     (storage-read 'user user-id)))
 
 (defun set-user (user)
