@@ -12,7 +12,9 @@
     (list :title (format nil "Issue #~a: ~a"
                          (storage-id issue)
                          (issue-subject issue))
-          :issue issue)))
+          :issue issue
+          :notes (redis:with-persistent-connection ()
+                   (issue-notes issue)))))
 
 (restas:define-route user ("/user/:id")
   (:sift-variables (id 'integer))

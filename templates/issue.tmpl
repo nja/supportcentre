@@ -19,6 +19,18 @@
 
 {template issue}
   <h1>Issue #{$issue.id}: {$issue.subject}</h1>
+  <table>
+    <tr><th>User</th><th>Text</th></tr>
+    {foreach $note in $notes}
+      {call noteRow data="$note" /}
+    {/foreach}
+{/template}
+
+{template noteRow}
+  <tr>
+    <td>{$userId}</td>
+    <td>{$text}</td>
+  </tr>
 {/template}
 
 {template createIssue}

@@ -17,3 +17,7 @@
                (storage-id note))
     (red:sadd (make-key 'user (note-user-id note) 'notes)
               (storage-id note))))
+
+(defun issue-notes (issue &key (from 0) (to -1))
+  (let ((ids (red:lrange (make-key 'issue (storage-id issue) 'notes) from to)))
+    (storage-read-many 'note ids)))
