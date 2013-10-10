@@ -69,9 +69,8 @@
                      for (thing-string set-string) on data by #'cddr
                      do (setf (gethash id hash)
                               (create type id thing-string set-string))
-                     finally (return hash)))
-         (things (loop for v being the hash-values in hash collect v)))
-    (storage-read-dependencies type things)
+                     finally (return hash))))
+    (storage-read-dependencies type (hash-table-values hash))
     (mapcar #'(lambda (id) (gethash id hash)) ids)))
 
 (defmethod storage-read-set ((type symbol) set)

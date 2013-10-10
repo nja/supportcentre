@@ -1,6 +1,5 @@
 ;;;; package.lisp
 
 (restas:define-module #:supportcentre
-  (:use #:cl)
-  (:import-from #:alexandria #:when-let)
+  (:use #:cl #:alexandria)
   (:import-from #:hunchentoot #:post-parameter))
