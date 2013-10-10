@@ -13,10 +13,9 @@
 
 (defmethod storage-create :after ((note note))
   (redis:with-pipelining
-    (red:rpush (make-key 'issue (note-issue-id note) 'notes)
-               (storage-id note))
-    (red:sadd (make-key 'user (note-user-id note) 'notes)
-              (storage-id note))))
+    (dolist (type '(issue user))
+      (red:rpush (make-key type (note-issue-id note) 'notes)
+                 (storage-id note)))))
 
 (defun issue-notes (issue &key (from 0) (to -1))
   (let ((ids (red:lrange (make-key 'issue (storage-id issue) 'notes) from to)))
