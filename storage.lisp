@@ -75,7 +75,7 @@
     (mapcar #'(lambda (id) (gethash id hash)) ids)))
 
 (defmethod storage-read-set ((type symbol) set)
-  (storage-read-many type (read-key-set (set-key type set))))
+  (storage-read-many type (read-id-set (set-key type set))))
 
 (defmethod storage-lookup ((type symbol) (lookup symbol) value)
   (when-let (id (red:get (lookup-key type lookup value)))
@@ -117,7 +117,7 @@
 
 (defmethod storage-read-many-from ((type symbol) (from-type symbol) id key &key (from 0) (to -1))
   (let* ((storage-key (make-key from-type id key))
-         (ids (red:lrange storage-key from to)))
+         (ids (read-id-list storage-key :from from :to to)))
     (storage-read-many type ids)))
 
 (defun next-id-key (storable)
@@ -141,5 +141,8 @@
 (defun make-key (&rest parts)
   (format nil "~{~a~^:~}" parts))
 
-(defun read-key-set (key)
+(defun read-id-set (key)
   (mapcar #'parse-integer (red:smembers key)))
+
+(defun read-id-list (key &key (from 0) (to -1))
+  (mapcar #'parse-integer (red:lrange key from to)))
