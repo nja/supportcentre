@@ -83,6 +83,10 @@
 (defmethod storage-exists-p ((type symbol) id)
   (red:exists (thing-key type id)))
 
+(defmethod storage-id ((string string))
+  "Hack for when an id has not yet been replaced by its object."
+  string)
+
 (defun next-id-key (storable)
   (make-key 'next-id (storage-type storable)))
 
