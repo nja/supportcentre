@@ -10,6 +10,7 @@
 (defgeneric storage-read-set (type set))
 (defgeneric storage-update (thing))
 (defgeneric storage-lookup (type lookup value))
+(defgeneric storage-exists-p (type id))
 
 (defclass storable ()
   ((id :initarg :id :accessor storage-id)
@@ -78,6 +79,9 @@
       (red:set sets-key (serialize (storage-sets thing)))
       (dolist (set (storage-sets thing))
         (red:sadd (set-key (storage-type thing) set) (storage-id thing))))))
+
+(defmethod storage-exists-p ((type symbol) id)
+  (red:exists (thing-key type id)))
 
 (defun next-id-key (storable)
   (make-key 'next-id (storage-type storable)))
