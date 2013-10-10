@@ -9,3 +9,7 @@
     (prin1 (list :name (user-name user)
                  :realname (user-realname user))
            out)))
+
+(defmethod storage-update :after ((user user))
+  (red:set (lookup-key 'user 'name (user-name user))
+           (storage-id user)))

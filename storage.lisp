@@ -9,6 +9,7 @@
 (defgeneric storage-read-many (type ids))
 (defgeneric storage-read-set (type set))
 (defgeneric storage-update (thing))
+(defgeneric storage-lookup (type lookup value))
 
 (defclass storable ()
   ((id :initarg :id :accessor storage-id)
@@ -62,7 +63,11 @@
           collect (create type id thing-string set-string))))
 
 (defmethod storage-read-set ((type symbol) set)
-    (storage-read-many type (red:smembers (set-key type set))))
+  (storage-read-many type (red:smembers (set-key type set))))
+
+(defmethod storage-lookup ((type symbol) (lookup symbol) value)
+  (when-let (id (red:get (lookup-key type lookup value)))
+    (storage-read type id)))
 
 (defmethod storage-update ((thing storable))
   (let ((serialized (serialize thing))
@@ -88,6 +93,9 @@
 
 (defun thing-key (type id)
   (make-key type id))
+
+(defun lookup-key (type lookup value)
+  (make-key type lookup value))
 
 (defun make-key (prefix suffix &rest more)
   (if more
