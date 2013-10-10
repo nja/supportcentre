@@ -75,7 +75,7 @@
     (mapcar #'(lambda (id) (gethash id hash)) ids)))
 
 (defmethod storage-read-set ((type symbol) set)
-  (storage-read-many type (red:smembers (set-key type set))))
+  (storage-read-many type (read-key-set (set-key type set))))
 
 (defmethod storage-lookup ((type symbol) (lookup symbol) value)
   (when-let (id (red:get (lookup-key type lookup value)))
@@ -137,3 +137,6 @@
   (if more
       (make-key prefix (apply #'make-key suffix more))
       (format nil "~A:~A" prefix suffix)))
+
+(defun read-key-set (key)
+  (mapcar #'parse-integer (red:smembers key)))
