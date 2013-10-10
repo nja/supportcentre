@@ -25,10 +25,7 @@
                          (user-name user))
           :user user)))
 
-(restas:define-route create-issue ("/issue/new/")
-  (list :title "Create new issue"))
-
-(restas:define-route create-issue/post ("/issue/new/" :method :post)
+(restas:define-route issue/post ("/issue/" :method :post)
   (:requirement #'(lambda () (post-parameter "save")))
   (let ((id (redis:with-persistent-connection ()
               (storage-create (make-instance 'issue
