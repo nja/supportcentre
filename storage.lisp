@@ -48,7 +48,8 @@
   (let ((thing (apply #'create type id (redis:with-pipelining
                                          (red:get (thing-key type id))
                                          (red:get (sets-key type id))))))
-    (storage-read-dependencies type (list thing))
+    (when thing
+      (storage-read-dependencies type (list thing)))
     thing))
 
 (defun create (type id thing-string sets-string)
