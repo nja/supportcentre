@@ -8,6 +8,7 @@
 (defgeneric storage-read (type id))
 (defgeneric storage-read-many (type ids))
 (defgeneric storage-read-set (type set))
+(defgeneric storage-read-many-from (type from id key &key from to))
 (defgeneric storage-update (thing))
 (defgeneric storage-lookup (type lookup value))
 (defgeneric storage-exists-p (type id))
@@ -113,6 +114,11 @@
                 (funcall setter dep thing))
               things
               dep-things)))))
+
+(defmethod storage-read-many-from ((type symbol) (from-type symbol) id key &key (from 0) (to -1))
+  (let* ((storage-key (make-key from-type id key))
+         (ids (red:lrange storage-key from to)))
+    (storage-read-many type ids)))
 
 (defun next-id-key (storable)
   (make-key 'next-id (storage-type storable)))
