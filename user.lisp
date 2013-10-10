@@ -12,7 +12,7 @@
          :password (password-of user))))
 
 (defmethod storage-update :after ((user user))
-  (red:set (lookup-key 'user 'name (name-of user))
+  (red:set (lookup-key 'user :name (name-of user))
            (storage-id user)))
 
 (defmethod issues-of ((user user) &key (from 0) (to -1))

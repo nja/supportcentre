@@ -20,7 +20,7 @@
 (defmethod storage-create :after ((note note))
   (redis:with-pipelining
     (dolist (type '(issue user))
-      (red:rpush (make-key type (storage-id (slot-value note type)) 'notes)
+      (red:rpush (make-key type (storage-id (slot-value note type)) :notes)
                  (storage-id note)))))
 
 (defmethod linkable-href ((note note))
