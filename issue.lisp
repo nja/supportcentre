@@ -13,9 +13,8 @@
 (defun set-users (issues)
   (let* ((user-ids (mapcar #'issue-creator issues))
          (users (storage-read-many 'user user-ids)))
-    (mapcar (lambda (issue user)
-              (setf (issue-creator issue) user)
-              issue)
+    (mapc (lambda (issue user)
+            (setf (issue-creator issue) user))
           issues
           users)))
 
