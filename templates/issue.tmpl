@@ -1,0 +1,29 @@
+{namespace supportcentre.view}
+
+{template issueList}
+  <table>
+    <tr><th>Id</th><th>Subject</th><th>Created by</th></tr>
+    {foreach $issue in $issues}
+      {call issueRow data="$issue" /}
+    {/foreach}
+  </table>
+{/template}
+
+{template issueRow}
+  <tr>
+    <td><a href="{$href}">{$id}</a></td>
+    <td><a href="{$href}">{$subject}</a></td>
+    <td><a href="{$creator.href}">{$creator.name}</a></td>
+  </tr>
+{/template}
+
+{template issue}
+  <h1>Issue #{$issue.id}: {$issue.subject}</h1>
+{/template}
+
+{template createIssue}
+  <form method="post">
+    Subject: <input name="subject" type="text" />
+    <input type="submit" value="save" name="save" />
+  </form>
+{/template}

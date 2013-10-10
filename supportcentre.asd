@@ -8,6 +8,8 @@
   :defsystem-depends-on (#:closure-template)
   :depends-on (#:restas #:closure-template #:cl-redis)
   :components ((:closure-template "templates/main")
+               (:closure-template "templates/user")
+               (:closure-template "templates/issue")
                (:file "package")
                (:file "util" :depends-on ("package"))
                (:file "storage" :depends-on ("package"))

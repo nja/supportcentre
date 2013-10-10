@@ -1,0 +1,13 @@
+{namespace supportcentre.view}
+
+{template user}
+  <p>Hello {$user.name} ({$user.realname}), how are you today?</p>
+{/template}
+
+{template register}
+  <form method="post">
+    User name: <input name="username" type="text" /><br>
+    Real name: <input name="realname" type="text" /><br>
+    <input type="submit" value="register" name="register" />
+  </form>
+{/template}
