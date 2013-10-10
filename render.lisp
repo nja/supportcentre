@@ -10,6 +10,10 @@
         (funcall template data)
         (format nil "No template for route ~A" route))))
 
+(defmethod restas:render-object ((designer designer) (data (eql nil)))
+  (setf (hunchentoot:return-code*) hunchentoot:+HTTP-NOT-FOUND+)
+  (hunchentoot:abort-request-handler))
+
 (defmethod restas:render-object ((designer designer) (data list))
   (let ((route (restas:route-symbol restas:*route*)))
     (finalize-page designer

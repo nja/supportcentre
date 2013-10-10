@@ -6,17 +6,16 @@
                   (storage-read-set 'issue :all))))
 
 (restas:define-route issue ("/issue/:id")
-  (let ((issue (redis:with-persistent-connection ()
-                 (storage-read 'issue id))))
-    (when issue
-      (list :title (format nil "Issue #~a: ~a"
-                           (storage-id issue)
-                           (issue-subject issue))
-            :issue issue))))
+  (when-let (issue (redis:with-persistent-connection ()
+                     (storage-read 'issue id)))
+    (list :title (format nil "Issue #~a: ~a"
+                         (storage-id issue)
+                         (issue-subject issue))
+          :issue issue)))
 
 (restas:define-route user ("/user/:id")
-  (let ((user (redis:with-persistent-connection ()
-                (storage-read 'user id))))
+  (when-let (user (redis:with-persistent-connection ()
+                    (storage-read 'user id)))
     (list :title (format nil "User ~D: ~A"
                          (storage-id user)
                          (user-name user))

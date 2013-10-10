@@ -1,4 +1,5 @@
 ;;;; package.lisp
 
 (restas:define-module #:supportcentre
-  (:use #:cl))
+  (:use #:cl)
+  (:import-from #:alexandria #:when-let))
