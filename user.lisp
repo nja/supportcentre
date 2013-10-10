@@ -27,3 +27,11 @@
   (let ((digest (ironclad:pbkdf2-hash-password-to-combined-string
                  (ironclad:ascii-string-to-byte-array cleartext))))
     (setf (user-password user) digest)))
+
+(defun get-user ()
+  (when-let (user-id (hunchentoot:session-value 'user-id))
+    (storage-read 'user user-id)))
+
+(defun set-user (user)
+  (setf (hunchentoot:session-value 'user-id)
+        (and user (storage-id user))))
