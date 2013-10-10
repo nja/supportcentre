@@ -19,6 +19,10 @@
   ((id :initarg :id :accessor storage-id)
    (sets :initarg :sets :initform (list :all) :accessor storage-sets)))
 
+(defmethod print-object ((thing storable) stream)
+  (print-unreadable-object (thing stream :type t :identity t)
+    (princ (slot-value-default thing 'id #\?) stream)))
+
 (defmethod serialize :around (thing)
   (prin1-to-string (call-next-method)))
 

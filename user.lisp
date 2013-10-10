@@ -5,6 +5,12 @@
    (realname :initarg :realname :initform "" :accessor realname-of)
    (password :initarg :password :initform nil :accessor password-of)))
 
+(defmethod print-object ((user user) stream)
+  (print-unreadable-object (user stream :type t :identity t)
+    (princ (slot-value-default user 'id #\?) stream)
+    (write-char #\Space stream)
+    (prin1 (slot-value-default user 'name #\?) stream)))
+
 (defmethod serialize nconc ((user user))
   (list :name (name-of user)
         :realname (realname-of user)
