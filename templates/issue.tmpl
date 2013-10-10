@@ -2,7 +2,7 @@
 
 {template issueList}
   <table>
-    <tr><th>Id</th><th>Subject</th><th>Created by</th></tr>
+    <tr><th>Id</th><th>Subject</th><th>Created by</th><th>Last change</th></tr>
     {foreach $issue in $issues}
       {call issueRow data="$issue" /}
     {/foreach}
@@ -14,13 +14,14 @@
     <td><a href="{$href}">{$id}</a></td>
     <td><a href="{$href}">{$subject}</a></td>
     <td><a href="{$creator.href}">{$creator.name}</a></td>
+    <td>{$changeTime}</td>
   </tr>
 {/template}
 
 {template issue}
   <h1>Issue #{$issue.id}: {$issue.subject}</h1>
   <table>
-    <tr><th>User</th><th>Text</th></tr>
+    <tr><th>User</th><th>Text</th><th>Time</th></tr>
     {foreach $note in $notes}
       {call noteRow data="$note" /}
     {/foreach}
@@ -36,6 +37,7 @@
   <tr>
     <td><a href="{$user.href}">{$user.name}</a></td>
     <td>{$text}</td>
+    <td>{$changeTime}</td>
   </tr>
 {/template}
 
