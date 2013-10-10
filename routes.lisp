@@ -36,7 +36,7 @@
                                              (post-parameter "subject")
                                              :creator
                                              (storage-read 'user 1))))))
-    (restas:redirect (restas:genurl 'issue :id id))))
+    (restas:redirect 'issue :id id)))
 
 (restas:define-route login ("/login/")
   (list :title "Log in"))
@@ -47,12 +47,12 @@
                 (storage-lookup 'user 'name (post-parameter "username")))))
     (when (correct-password-p user (post-parameter "password"))
       (set-user user)
-      (restas:redirect (restas:genurl 'user :id (storage-id user))))
-    (restas:redirect (restas:genurl 'login))))
+      (restas:redirect 'user :id (storage-id user)))
+    (restas:redirect 'login)))
 
 (restas:define-route logout ("/logout/")
   (set-user nil)
-  (restas:redirect (restas:genurl 'login)))
+  (restas:redirect 'login))
 
 (restas:define-route register ("/register/")
   (list :title "Register an account"))
@@ -65,4 +65,4 @@
     (set-password user (post-parameter "password"))
     (redis:with-persistent-connection ()
       (storage-create user))
-    (restas:redirect (restas:genurl 'user :id (storage-id user)))))
+    (restas:redirect 'user :id (storage-id user))))
