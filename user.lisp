@@ -16,11 +16,12 @@
   (red:set (lookup-key 'user 'name (user-name user))
            (storage-id user)))
 
-(defun check-password (user cleartext)
-  (when-let (digest (user-password user))
-    (ironclad:pbkdf2-check-password
-     (ironclad:ascii-string-to-byte-array cleartext)
-     digest)))
+(defun correct-password-p (user cleartext)
+  (when (and user (stringp cleartext) (< 0 (length cleartext)))
+    (when-let (digest (user-password user))
+      (ironclad:pbkdf2-check-password
+       (ironclad:ascii-string-to-byte-array cleartext)
+       digest))))
 
 (defun set-password (user cleartext)
   (let ((digest (ironclad:pbkdf2-hash-password-to-combined-string
