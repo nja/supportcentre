@@ -59,14 +59,20 @@
       thing)))
 
 (defmethod storage-read-many ((type symbol) ids)
-  (let* ((data (redis:with-pipelining
-                 (dolist (id ids)
+  (let* ((unique-ids (unique ids))
+         (data (redis:with-pipelining
+                 (dolist (id unique-ids)
                    (red:get (thing-key type id))
                    (red:get (sets-key type id)))))
-         (things (loop for id in ids
-                       for (thing-string set-string) on data by #'cddr
-                       collect (create type id thing-string set-string))))
-    (storage-read-dependencies type things)))
+         (hash (loop with hash = (make-hash-table :test 'equal)
+                     for id in unique-ids
+                     for (thing-string set-string) on data by #'cddr
+                     do (setf (gethash id hash)
+                              (create type id thing-string set-string))
+                     finally (return hash)))
+         (things (loop for v being the hash-values in hash collect v)))
+    (storage-read-dependencies type things)
+    (mapcar #'(lambda (id) (gethash id hash)) ids)))
 
 (defmethod storage-read-set ((type symbol) set)
   (storage-read-many type (red:smembers (set-key type set))))
