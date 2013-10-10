@@ -17,14 +17,8 @@
          :creator (storage-id (user-of issue))
          :area (storage-id (area-of issue)))))
 
-(defmethod storage-create :after ((issue issue))
-  (red:rpush (make-key 'area (storage-id (area-of issue)) :issues)
-             (storage-id issue)))
-
 (defmethod notes-of ((issue issue) &key (from 0) (to -1))
-  (storage-read-many-from 'note 'issue (storage-id issue) :notes
-                          :from from
-                          :to to))
+  (storage-read-backrefs 'note issue :from from :to to))
 
 (defmethod linkable-href ((issue issue))
   (restas:genurl 'issue

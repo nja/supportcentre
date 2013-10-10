@@ -13,6 +13,4 @@
   '((user-of user)))
 
 (defmethod issues-of ((area area) &key (from 0) (to -1))
-  (storage-read-many-from 'issue 'area (storage-id area) :issues
-                          :from from
-                          :to to))
+  (storage-read-backrefs 'issue area :from from :to to))

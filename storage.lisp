@@ -8,7 +8,7 @@
 (defgeneric storage-read (type id))
 (defgeneric storage-read-many (type ids))
 (defgeneric storage-read-set (type set))
-(defgeneric storage-read-many-from (type from id key &key from to))
+(defgeneric storage-read-backrefs (type thing &key from to))
 (defgeneric storage-update (thing))
 (defgeneric storage-lookup (type lookup value))
 (defgeneric storage-exists-p (type id))
@@ -105,6 +105,10 @@
 
 (defmethod storage-dependencies ((type t)))
 
+(defmethod storage-dependencies ((thing storable))
+  (mapcar #'(lambda (dependency) (funcall (car dependency) thing))
+          (storage-dependencies (storage-type thing))))
+
 (defmethod storage-read-dependencies ((type symbol) things)
   (dolist (dependency (storage-dependencies type) things)
     (destructuring-bind (accessor dep-type) dependency
@@ -116,10 +120,17 @@
               things
               dep-things)))))
 
-(defmethod storage-read-many-from ((type symbol) (from-type symbol) id key &key (from 0) (to -1))
-  (let* ((storage-key (make-key from-type id key))
+(defmethod storage-read-backrefs ((type symbol) (thing storable) &key (from 0) (to -1))
+  (let* ((storage-key (backref-key thing type))
          (ids (read-id-list storage-key :from from :to to)))
     (storage-read-many type ids)))
+
+(defmethod storage-create :after ((thing storable))
+  (dolist (dep (storage-dependencies thing))
+    (add-backref dep thing)))
+
+(defun add-backref (dep thing)
+  (red:rpush (backref-key dep (storage-type thing)) (storage-id thing)))
 
 (defun next-id-key (storable)
   (make-key 'next-id (storage-type storable)))
@@ -138,6 +149,9 @@
 
 (defun lookup-key (type lookup value)
   (make-key type lookup value))
+
+(defun backref-key (dep type)
+  (make-key (thing-key (storage-type dep) (storage-id dep)) :BACKREF type))
 
 (defun make-key (&rest parts)
   (format nil "~{~a~^:~}" parts))

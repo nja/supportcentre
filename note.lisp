@@ -17,12 +17,6 @@
          :user (storage-id (user-of note))
          :text (text-of note))))
 
-(defmethod storage-create :after ((note note))
-  (redis:with-pipelining
-    (dolist (type '(issue user))
-      (red:rpush (make-key type (storage-id (slot-value note type)) :notes)
-                 (storage-id note)))))
-
 (defmethod linkable-href ((note note))
   (restas:genurl 'note
                  :area-id (storage-id (area-of note))
