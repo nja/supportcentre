@@ -25,6 +25,8 @@
     {foreach $note in $notes}
       {call noteRow data="$note" /}
     {/foreach}
+  </table>
+  {call createNote data="all"/}
 {/template}
 
 {template noteRow}
@@ -38,5 +40,12 @@
   <form method="post" action="/issue/">
     Subject: <input name="subject" type="text" />
     <input type="submit" value="save" name="save" />
+  </form>
+{/template}
+
+{template createNote}
+  <form method="post" action="/issue/{$issue.id}/note/">
+    Text: <input name="text" type="text" />
+    <input type="submit" value="Comment" name="save" />
   </form>
 {/template}

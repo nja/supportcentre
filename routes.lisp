@@ -16,6 +16,18 @@
           :notes (redis:with-persistent-connection ()
                    (issue-notes issue)))))
 
+(restas:define-route note ("/issue/:id/note/" :method :post)
+  (:sift-variables (id 'integer))
+  (:requirement #'(lambda () (post-parameter "save")))
+  (redis:with-persistent-connection ()
+      (let* ((issue (storage-read 'issue id))
+             (note (make-instance 'note
+                                  :user-id (storage-id (get-user))
+                                  :issue-id  (storage-id issue)
+                                  :text (post-parameter "text"))))
+        (storage-create note)
+        (restas:redirect 'issue :id (storage-id issue)))))
+
 (restas:define-route user ("/user/:id")
   (:sift-variables (id 'integer))
   (when-let (user (redis:with-persistent-connection ()
