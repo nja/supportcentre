@@ -29,6 +29,10 @@
   {call createNote data="all"/}
 {/template}
 
+{template issueNote}
+  {call issue data="all" /}
+{/template}
+
 {template noteRow}
   <tr>
     <td><a href="{$user.href}">{$user.name}</a></td>
