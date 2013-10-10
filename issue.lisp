@@ -1,6 +1,6 @@
 (in-package #:supportcentre)
 
-(defclass issue (storable)
+(defclass issue (storable linkable)
   ((subject :initarg :subject :accessor issue-subject)
    (creator :initarg :creator :accessor issue-creator)))
 
