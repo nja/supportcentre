@@ -138,10 +138,8 @@
 (defun lookup-key (type lookup value)
   (make-key type lookup value))
 
-(defun make-key (prefix suffix &rest more)
-  (if more
-      (make-key prefix (apply #'make-key suffix more))
-      (format nil "~A:~A" prefix suffix)))
+(defun make-key (&rest parts)
+  (format nil "~{~a~^:~}" parts))
 
 (defun read-key-set (key)
   (mapcar #'parse-integer (red:smembers key)))
