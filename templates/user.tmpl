@@ -1,7 +1,8 @@
 {namespace view}
 
 {template user}
-  <p>Hello {$user.name} ({$user.realname}), how are you today?</p>
+  <p>{$title} ({$user.realname})</p>
+  {call issueList data="all" /}
 {/template}
 
 {template register}

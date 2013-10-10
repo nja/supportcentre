@@ -21,4 +21,5 @@
   <h1>Area #{$area.id}: {$area.name}</h1>
   <p>Owner: <a href="{$area.owner.href}">{$area.owner.name}</a></p>
   {call issueList data="all" /}
+  {call createIssue data="all" /}
 {/template}

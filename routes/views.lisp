@@ -44,12 +44,13 @@
 
 (restas:define-route user ("/user/:id")
   (:sift-variables (id 'integer))
-  (when-let (user (redis:with-persistent-connection ()
-                    (storage-read 'user id)))
-    (list :title (format nil "User ~d: ~a"
-                         (storage-id user)
-                         (name-of user))
-          :user user)))
+  (redis:with-persistent-connection ()
+    (when-let (user (storage-read 'user id))
+      (list :title (format nil "User ~@r: ~a"
+                           (storage-id user)
+                           (name-of user))
+            :user user
+            :issues (issues-of user)))))
 
 (restas:define-route register ("/register/")
   (list :title "Register an account"))
