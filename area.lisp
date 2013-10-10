@@ -4,10 +4,9 @@
   ((name :initarg :name :accessor name-of)
    (owner :initarg :owner :accessor user-of)))
 
-(defmethod serialize ((area area))
-  (prin1-to-string
-   (list :name (name-of area)
-         :owner (storage-id (user-of area)))))
+(defmethod serialize nconc ((area area))
+  (list :name (name-of area)
+        :owner (storage-id (user-of area))))
 
 (defmethod storage-dependencies ((type (eql 'area)))
   '((user-of user)))

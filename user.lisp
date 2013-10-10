@@ -5,11 +5,10 @@
    (realname :initarg :realname :initform "" :accessor realname-of)
    (password :initarg :password :initform nil :accessor password-of)))
 
-(defmethod serialize ((user user))
-  (prin1-to-string
-   (list :name (name-of user)
-         :realname (realname-of user)
-         :password (password-of user))))
+(defmethod serialize nconc ((user user))
+  (list :name (name-of user)
+        :realname (realname-of user)
+        :password (password-of user)))
 
 (defmethod storage-update :after ((user user))
   (red:set (lookup-key 'user :name (name-of user))

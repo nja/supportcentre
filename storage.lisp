@@ -1,6 +1,6 @@
 (in-package #:supportcentre)
 
-(defgeneric serialize (thing))
+(defgeneric serialize (thing) (:method-combination nconc))
 (defgeneric deserialize (type string))
 (defgeneric storage-type (thing))
 (defgeneric storage-key (thing))
@@ -19,8 +19,11 @@
   ((id :initarg :id :accessor storage-id)
    (sets :initarg :sets :initform (list :all) :accessor storage-sets)))
 
-(defmethod serialize ((thing list))
-  (prin1-to-string thing))
+(defmethod serialize :around (thing)
+  (prin1-to-string (call-next-method)))
+
+(defmethod serialize nconc ((list list))
+  list)
 
 (defmethod deserialize (type (string (eql nil)))
   nil)

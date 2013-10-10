@@ -11,11 +11,10 @@
   '((user-of user)
     (area-of area)))
 
-(defmethod serialize ((issue issue))
-  (prin1-to-string
-   (list :subject (subject-of issue)
-         :creator (storage-id (user-of issue))
-         :area (storage-id (area-of issue)))))
+(defmethod serialize nconc ((issue issue))
+  (list :subject (subject-of issue)
+        :creator (storage-id (user-of issue))
+        :area (storage-id (area-of issue))))
 
 (defmethod notes-of ((issue issue) &key (from 0) (to -1))
   (storage-read-backrefs 'note issue :from from :to to))

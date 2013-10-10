@@ -11,11 +11,10 @@
   '((issue-of issue)
     (user-of user)))
 
-(defmethod serialize ((note note))
-  (prin1-to-string
-   (list :issue (storage-id (issue-of note))
-         :user (storage-id (user-of note))
-         :text (text-of note))))
+(defmethod serialize nconc ((note note))
+  (list :issue (storage-id (issue-of note))
+        :user (storage-id (user-of note))
+        :text (text-of note)))
 
 (defmethod linkable-href ((note note))
   (restas:genurl 'note
