@@ -41,6 +41,7 @@
   (:sift-variables (id 'integer))
   (:requirement #'(lambda () (post-parameter "save")))
   (redis:with-persistent-connection ()
+    (must-be-logged-in)
     (let* ((issue (storage-read 'issue id))
            (note (make-instance 'note
                                 :user (get-user)
@@ -61,6 +62,7 @@
 (restas:define-route issue/post ("/issue/" :method :post)
   (:requirement #'(lambda () (post-parameter "save")))
   (redis:with-persistent-connection ()
+    (must-be-logged-in)
     (storage-create (make-instance 'issue
                                    :subject
                                    (post-parameter "subject")
@@ -74,7 +76,7 @@
 (restas:define-route login/post ("/login/" :method :post)
   (:requirement #'(lambda () (post-parameter "login")))
   (let ((user (redis:with-persistent-connection ()
-                (storage-lookup 'user 'name (post-parameter "username")))))
+                (storage-lookup 'user :name (post-parameter "username")))))
     (when (correct-password-p user (post-parameter "password"))
       (set-user user)
       (restas:redirect 'user :id (storage-id user)))
@@ -96,3 +98,7 @@
     (redis:with-persistent-connection ()
       (storage-create user))
     (restas:redirect 'user :id (storage-id user))))
+
+(defun must-be-logged-in ()
+  (unless (get-user)
+    (restas:redirect 'login)))
