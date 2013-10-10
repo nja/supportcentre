@@ -1,5 +1,7 @@
 (in-package #:supportcentre)
 
+(defgeneric notes-of (thing &key from to))
+
 (defclass note (storable linkable)
   ((issue :initarg :issue :initform nil :accessor issue-of)
    (user :initarg :user :initform nil :accessor user-of)
@@ -25,7 +27,3 @@
   (restas:genurl 'issue-note
                  :issue-id (storage-id (issue-of note))
                  :note-id (storage-id note)))
-
-(defun issue-notes (issue &key (from 0) (to -1))
-  (let ((ids (red:lrange (make-key 'issue (storage-id issue) 'notes) from to)))
-    (storage-read-many 'note ids)))

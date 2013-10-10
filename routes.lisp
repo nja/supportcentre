@@ -14,7 +14,7 @@
                          (subject-of issue))
           :issue issue
           :notes (redis:with-persistent-connection ()
-                   (issue-notes issue)))))
+                   (notes-of issue)))))
 
 (restas:define-route note ("/note/:id")
   (:sift-variables (id 'integer))
@@ -34,7 +34,7 @@
                                issue-id
                                (subject-of issue))
                 :issue issue
-                :notes (issue-notes issue)
+                :notes (notes-of issue)
                 :note note))))))
 
 (restas:define-route note/post ("/issue/:id/note/" :method :post)

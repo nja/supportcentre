@@ -15,6 +15,16 @@
   (red:set (lookup-key 'user 'name (name-of user))
            (storage-id user)))
 
+(defmethod issues-of ((user user) &key (from 0) (to -1))
+  (storage-read-many-from 'issue 'user (storage-id user) :issues
+                          :from from
+                          :to to))
+
+(defmethod notes-of ((user user) &key (from 0) (to -1))
+  (storage-read-many-from 'note 'user (storage-id user) :notes
+                          :from from
+                          :to to))
+
 (defun correct-password-p (user cleartext)
   (when (and user (stringp cleartext) (< 0 (length cleartext)))
     (when-let (digest (password-of user))
