@@ -43,4 +43,4 @@
 
 (defun set-user (user)
   (setf (hunchentoot:session-value 'user-id)
-        (and user (storage-id user))))
+        (when user (storage-id user))))
