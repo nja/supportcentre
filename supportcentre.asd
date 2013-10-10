@@ -7,17 +7,26 @@
   :license "Proprietary"
   :defsystem-depends-on (#:closure-template)
   :depends-on (#:restas #:closure-template #:cl-redis #:alexandria #:ironclad)
-  :components ((:closure-template "templates/main")
-               (:closure-template "templates/user")
-               (:closure-template "templates/issue")
-               (:closure-template "templates/login")
-               (:file "package")
-               (:file "util" :depends-on ("package"))
-               (:file "storage" :depends-on ("package"))
-               (:file "linkable" :depends-on ("storage"))
-               (:file "user" :depends-on ("storage"))
-               (:file "issue" :depends-on ("storage"))
-               (:file "note" :depends-on ("storage"))
-               (:file "view")
-               (:file "routes" :depends-on ("view"))))
+  :components ((:module "templates"
+                :components ((:closure-template "main")
+                             (:closure-template "user")
+                             (:closure-template "issue")
+                             (:closure-template "login")
+                             (:closure-template "area")))
+               (:module "base"
+                :pathname ""
+                :serial t
+                :components ((:file "package")
+                             (:file "util")
+                             (:file "storage")
+                             (:file "linkable")
+                             (:file "user")
+                             (:file "area")
+                             (:file "issue")
+                             (:file "note")
+                             (:file "view")))
+               (:module "routes"
+                :components ((:file "posts")
+                             (:file "views")
+                             (:file "redirects")))))
 

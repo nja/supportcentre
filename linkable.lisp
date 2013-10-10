@@ -8,5 +8,13 @@
 (defmethod linkable-href ((thing storable))
   (restas:genurl (storage-type thing) :id (storage-id thing)))
 
-(defmethod (setf storage-id) :after (id (thing linkable))
-  (setf (href thing) (linkable-href thing)))
+(defgeneric set-href (thing))
+
+(defmethod set-href (thing))
+
+(defmethod set-href ((linkable linkable))
+  (setf (href linkable) (linkable-href linkable)))
+
+(defmethod storage-read-dependencies :after (type things)
+  (dolist (thing things)
+    (set-href thing)))

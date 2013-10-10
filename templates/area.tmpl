@@ -1,0 +1,24 @@
+{namespace view}
+
+{template areaList}
+  <table>
+    <tr><th>Id</th><th>Name</th><th>Owner</th></tr>
+    {foreach $area in $areas}
+      {call areaRow data="$area" /}
+    {/foreach}
+  </table>
+{/template}
+
+{template areaRow}
+  <tr>
+    <td><a href="{$href}">{$id}</a></td>
+    <td><a href="{$href}">{$name}</a></td>
+    <td><a href="{$owner.href}">{$owner.name}</a></td>
+  </tr>
+{/template}
+
+{template area}
+  <h1>Area #{$area.id}: {$area.name}</h1>
+  <p>Owner: <a href="{$area.owner.href}">{$area.owner.name}</a></p>
+  {call issueList data="all" /}
+{/template}

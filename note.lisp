@@ -24,6 +24,10 @@
                  (storage-id note)))))
 
 (defmethod linkable-href ((note note))
-  (restas:genurl 'issue-note
+  (restas:genurl 'note
+                 :area-id (storage-id (area-of note))
                  :issue-id (storage-id (issue-of note))
                  :note-id (storage-id note)))
+
+(defmethod area-of ((note note))
+  (area-of (issue-of note)))
