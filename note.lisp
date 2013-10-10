@@ -2,7 +2,7 @@
 
 (defgeneric notes-of (thing &key from to))
 
-(defclass note (storable linkable)
+(defclass note (storable linkable timed)
   ((issue :initarg :issue :initform nil :accessor issue-of)
    (user :initarg :user :initform nil :accessor user-of)
    (text :initarg :text :initform "" :accessor text-of)))

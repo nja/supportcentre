@@ -6,7 +6,12 @@
   :author "Johan Andersson <nilsjohanandersson@gmail.com>"
   :license "Proprietary"
   :defsystem-depends-on (#:closure-template)
-  :depends-on (#:restas #:closure-template #:cl-redis #:alexandria #:ironclad)
+  :depends-on (#:restas
+               #:closure-template
+               #:cl-redis
+               #:alexandria
+               #:ironclad
+               #:local-time)
   :components ((:module "templates"
                 :components ((:closure-template "main")
                              (:closure-template "user")
@@ -20,6 +25,7 @@
                              (:file "util")
                              (:file "storage")
                              (:file "linkable")
+                             (:file "timed")
                              (:file "user")
                              (:file "area")
                              (:file "issue")

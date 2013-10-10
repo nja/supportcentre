@@ -2,7 +2,7 @@
 
 (defgeneric issues-of (thing &key from to))
 
-(defclass issue (storable linkable)
+(defclass issue (storable linkable timed)
   ((subject :initarg :subject :accessor subject-of)
    (creator :initarg :creator :accessor user-of)
    (area :initarg :area :accessor area-of)))
