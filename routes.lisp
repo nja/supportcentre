@@ -27,13 +27,13 @@
 
 (restas:define-route issue/post ("/issue/" :method :post)
   (:requirement #'(lambda () (post-parameter "save")))
-  (let ((id (redis:with-persistent-connection ()
-              (storage-create (make-instance 'issue
-                                             :subject
-                                             (post-parameter "subject")
-                                             :creator
-                                             (storage-read 'user 1))))))
-    (restas:redirect 'issue :id id)))
+  (redis:with-persistent-connection ()
+    (storage-create (make-instance 'issue
+                                   :subject
+                                   (post-parameter "subject")
+                                   :creator
+                                   (get-user))))
+  (restas:redirect 'issue-list))
 
 (restas:define-route login ("/login/")
   (list :title "Log in"))
