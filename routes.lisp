@@ -11,7 +11,7 @@
                      (storage-read 'issue id)))
     (list :title (format nil "Issue #~a: ~a"
                          (storage-id issue)
-                         (issue-subject issue))
+                         (subject-of issue))
           :issue issue
           :notes (redis:with-persistent-connection ()
                    (issue-notes issue)))))
@@ -21,18 +21,18 @@
   (redis:with-persistent-connection ()
     (when-let (note (storage-read 'note id))
       (restas:redirect 'issue-note
-                       :issue-id (storage-id (note-issue note))
+                       :issue-id (storage-id (issue-of note))
                        :note-id id))))
 
 (restas:define-route issue-note ("/issue/:issue-id/note/:note-id")
   (:sift-variables (id 'integer))
   (redis:with-persistent-connection ()
     (when-let (note (storage-read 'note note-id))
-      (let ((issue (note-issue note)))
-        (when (equal issue-id (storage-id (note-issue note)))
+      (let ((issue (issue-of note)))
+        (when (equal issue-id (storage-id (issue-of note)))
           (list :title (format nil "Issue #~a: ~a"
                                issue-id
-                               (issue-subject issue))
+                               (subject-of issue))
                 :issue issue
                 :notes (issue-notes issue)
                 :note note))))))
@@ -55,7 +55,7 @@
                     (storage-read 'user id)))
     (list :title (format nil "User ~D: ~A"
                          (storage-id user)
-                         (user-name user))
+                         (name-of user))
           :user user)))
 
 (restas:define-route issue/post ("/issue/" :method :post)

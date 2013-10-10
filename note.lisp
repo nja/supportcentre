@@ -1,19 +1,19 @@
 (in-package #:supportcentre)
 
 (defclass note (storable linkable)
-  ((issue :initarg :issue :initform nil :accessor note-issue)
-   (user :initarg :user :initform nil :accessor note-user)
-   (text :initarg :text :initform "" :accessor note-text)))
+  ((issue :initarg :issue :initform nil :accessor issue-of)
+   (user :initarg :user :initform nil :accessor user-of)
+   (text :initarg :text :initform "" :accessor text-of)))
 
 (defmethod storage-dependencies ((type (eql 'note)))
-  '((note-issue issue)
-    (note-user user)))
+  '((issue-of issue)
+    (user-of user)))
 
 (defmethod serialize ((note note))
   (prin1-to-string
-   (list :issue (storage-id (note-issue note))
-         :user (storage-id (note-user note))
-         :text (note-text note))))
+   (list :issue (storage-id (issue-of note))
+         :user (storage-id (user-of note))
+         :text (text-of note))))
 
 (defmethod storage-create :after ((note note))
   (redis:with-pipelining
@@ -23,7 +23,7 @@
 
 (defmethod linkable-href ((note note))
   (restas:genurl 'issue-note
-                 :issue-id (storage-id (note-issue note))
+                 :issue-id (storage-id (issue-of note))
                  :note-id (storage-id note)))
 
 (defun issue-notes (issue &key (from 0) (to -1))

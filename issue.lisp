@@ -1,14 +1,14 @@
 (in-package #:supportcentre)
 
 (defclass issue (storable linkable)
-  ((subject :initarg :subject :accessor issue-subject)
-   (creator :initarg :creator :accessor issue-creator)))
+  ((subject :initarg :subject :accessor subject-of)
+   (creator :initarg :creator :accessor user-of)))
 
 (defmethod storage-dependencies ((type (eql 'issue)))
-  '((issue-creator user)))
+  '((user-of user)))
 
 (defmethod serialize ((issue issue))
   (with-output-to-string (out)
-    (prin1 (list :subject (issue-subject issue)
-                 :creator (storage-id (issue-creator issue)))
+    (prin1 (list :subject (subject-of issue)
+                 :creator (storage-id (user-of issue)))
            out)))
