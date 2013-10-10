@@ -11,6 +11,8 @@
 (defgeneric storage-update (thing))
 (defgeneric storage-lookup (type lookup value))
 (defgeneric storage-exists-p (type id))
+(defgeneric storage-read-dependencies (type things))
+(defgeneric storage-dependencies (type))
 
 (defclass storable ()
   ((id :initarg :id :accessor storage-id)
@@ -42,9 +44,11 @@
     (values id (storage-update thing))))
 
 (defmethod storage-read ((type symbol) id)
-  (apply #'create type id (redis:with-pipelining
-                            (red:get (thing-key type id))
-                            (red:get (sets-key type id)))))
+  (let ((thing (apply #'create type id (redis:with-pipelining
+                                         (red:get (thing-key type id))
+                                         (red:get (sets-key type id))))))
+    (storage-read-dependencies type (list thing))
+    thing))
 
 (defun create (type id thing-string sets-string)
   (when (and thing-string sets-string)
@@ -55,13 +59,14 @@
       thing)))
 
 (defmethod storage-read-many ((type symbol) ids)
-  (let ((data (redis:with-pipelining
-                (dolist (id ids)
-                  (red:get (thing-key type id))
-                  (red:get (sets-key type id))))))
-    (loop for id in ids
-          for (thing-string set-string) on data by #'cddr
-          collect (create type id thing-string set-string))))
+  (let* ((data (redis:with-pipelining
+                 (dolist (id ids)
+                   (red:get (thing-key type id))
+                   (red:get (sets-key type id)))))
+         (things (loop for id in ids
+                       for (thing-string set-string) on data by #'cddr
+                       collect (create type id thing-string set-string))))
+    (storage-read-dependencies type things)))
 
 (defmethod storage-read-set ((type symbol) set)
   (storage-read-many type (red:smembers (set-key type set))))
@@ -86,6 +91,23 @@
 (defmethod storage-id ((string string))
   "Hack for when an id has not yet been replaced by its object."
   string)
+
+(defmethod storage-id ((integer integer))
+  "Hack for when an id has not yet been replaced by its object."
+  integer)
+
+(defmethod storage-dependencies ((type t)))
+
+(defmethod storage-read-dependencies ((type symbol) things)
+  (dolist (dependency (storage-dependencies type) things)
+    (destructuring-bind (accessor dep-type) dependency
+      (let* ((dep-ids (mapcar accessor things))
+             (dep-things (storage-read-many dep-type dep-ids))
+             (setter (fdefinition `(setf ,accessor))))
+        (mapc (lambda (thing dep)
+                (funcall setter dep thing))
+              things
+              dep-things)))))
 
 (defun next-id-key (storable)
   (make-key 'next-id (storage-type storable)))
