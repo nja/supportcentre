@@ -8,7 +8,6 @@
   '((user-of user)))
 
 (defmethod serialize ((issue issue))
-  (with-output-to-string (out)
-    (prin1 (list :subject (subject-of issue)
-                 :creator (storage-id (user-of issue)))
-           out)))
+  (prin1-to-string
+   (list :subject (subject-of issue)
+         :creator (storage-id (user-of issue)))))
