@@ -16,7 +16,18 @@
                              (issue-subject issue))
               :body (supportcentre.view:issue
                      (list :issue issue)))
-        hunchentoot:+HTTP-NOT-FOUND+)))
+        hunchentoot:+http-not-found+)))
+
+(restas:define-route user ("/user/:id")
+  (let ((user (redis:with-persistent-connection ()
+                (storage-read 'user id))))
+    (if user
+        (list :title (format nil "User ~D: ~A"
+                             (storage-id user)
+                             (user-name user))
+              :body (supportcentre.view:user
+                     (list :user user)))
+        hunchentoot:+http-not-found+)))
 
 (restas:define-route create-issue ("/issue/new/")
   (list :title "Create new issue"

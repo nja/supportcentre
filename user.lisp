@@ -1,6 +1,6 @@
 (in-package #:supportcentre)
 
-(defclass user (storable)
+(defclass user (storable linkable)
   ((name :initarg :name :accessor user-name)
    (realname :initarg :realname :accessor user-realname)))
 

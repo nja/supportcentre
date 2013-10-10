@@ -24,7 +24,7 @@
   <tr>
     <td><a href="{$href}">{$id}</a></td>
     <td><a href="{$href}">{$subject}</a></td>
-    <td>{$creator.name}</td>
+    <td><a href="{$creator.href}">{$creator.name}</a></td>
   </tr>
 {/template}
 
@@ -37,6 +37,10 @@
     Subject: <input name="subject" type="text" />
     <input type="submit" value="save" name="save" />
   </form>
+{/template}
+
+{template user}
+  <p>Hello {$user.name} ({$user.realname}), how are you today?</p>
 {/template}
 
 {template register}
