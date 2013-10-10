@@ -2,36 +2,28 @@
 
 (restas:define-route issue-list ("")
   (list :title "Hello, World"
-        :body (supportcentre.view:issue-list
-               (list :issues
-                     (redis:with-persistent-connection ()
-                       (storage-read-set 'issue :all))))))
+        :issues (redis:with-persistent-connection ()
+                  (storage-read-set 'issue :all))))
 
 (restas:define-route issue ("/issue/:id")
   (let ((issue (redis:with-persistent-connection ()
                  (storage-read 'issue id))))
-    (if issue
-        (list :title (format nil "Issue #~a: ~a"
-                             (storage-id issue)
-                             (issue-subject issue))
-              :body (supportcentre.view:issue
-                     (list :issue issue)))
-        hunchentoot:+http-not-found+)))
+    (when issue
+      (list :title (format nil "Issue #~a: ~a"
+                           (storage-id issue)
+                           (issue-subject issue))
+            :issue issue))))
 
 (restas:define-route user ("/user/:id")
   (let ((user (redis:with-persistent-connection ()
                 (storage-read 'user id))))
-    (if user
-        (list :title (format nil "User ~D: ~A"
-                             (storage-id user)
-                             (user-name user))
-              :body (supportcentre.view:user
-                     (list :user user)))
-        hunchentoot:+http-not-found+)))
+    (list :title (format nil "User ~D: ~A"
+                         (storage-id user)
+                         (user-name user))
+          :user user)))
 
 (restas:define-route create-issue ("/issue/new/")
-  (list :title "Create new issue"
-        :body (supportcentre.view:create-issue)))
+  (list :title "Create new issue"))
 
 (restas:define-route create-issue/post ("/issue/new/" :method :post)
   (:requirement #'(lambda () (hunchentoot:post-parameter "save")))
@@ -58,8 +50,7 @@
                     (your-session))))
 
 (restas:define-route register ("/register/")
-  (list :title "Register an account"
-        :body (supportcentre.view:register)))
+  (list :title "Register an account"))
 
 (restas:define-route register/post ("/register/" :method :post)
   (:requirement #'(lambda () (hunchentoot:post-parameter "register")))
