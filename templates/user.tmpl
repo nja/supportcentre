@@ -5,6 +5,26 @@
   {call issueList data="all" /}
 {/template}
 
+{template userList}
+  <table>
+    <tr><th>Id</th><th>Username</th><th>Real name</th></tr>
+    {foreach $user in $users}
+      {call userRow data="$user" /}
+    {/foreach}
+  </table>
+  <ul>
+    <li><a href="{$home}">Home</a></li>
+  </ul>
+{/template}
+
+{template userRow}
+  <tr>
+    <td><a href="{$href}">{$id}</a></td>
+    <td><a href="{$href}">{$name}</a></td>
+    <td><a href="{$href}">{$realname}</a></td>
+  </tr>
+{/template}
+
 {template register}
   <form method="post">
     User name: <input name="username" type="text" /><br>

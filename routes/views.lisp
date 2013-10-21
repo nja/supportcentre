@@ -55,6 +55,13 @@
             :user user
             :issues (issues-of user)))))
 
+(restas:define-route user-list ("/user/")
+  (redis:with-persistent-connection ()
+    (list :title "User list"
+          :users (redis:with-persistent-connection ()
+                   (storage-read-set 'user :all))
+          :home (restas:genurl 'area-list))))
+
 (restas:define-route register ("/register/")
   (list :title "Register an account"))
 
