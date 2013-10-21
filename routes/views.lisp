@@ -8,7 +8,8 @@
                            (storage-id area)
                            (name-of area))
             :area area
-            :issues (issues-of area)))))
+            :issues (issues-of area)
+            :home (restas:genurl 'area-list)))))
 
 (restas:define-route area-list ("")
   (list :title "Hello, World"
@@ -25,7 +26,9 @@
                            (subject-of issue))
             :issue issue
             :notes (redis:with-persistent-connection ()
-                     (notes-of issue))))))
+                     (notes-of issue))
+            :home (restas:genurl 'area-list)
+            :area (area-of issue)))))
 
 (restas:define-route note ("/area/:area-id/issue/:issue-id/note/:note-id")
   (:sift-variables (area-id 'integer) (issue-id 'integer) (note-id 'integer))
