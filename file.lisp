@@ -13,7 +13,8 @@
 
 (defmethod print-object ((file file) stream)
   (print-unreadable-object (file stream :type t :identity t)
-    (format stream "~a ~a"
+    (format stream "~d ~a ~a"
+            (storage-id file)
             (subseq (hash-of file) 0 6)
             (name-of file))))
 
