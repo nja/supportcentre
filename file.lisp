@@ -5,7 +5,11 @@
 (defclass file (storable linkable)
   ((hash :initarg :hash :reader hash-of)
    (name :initarg :name :reader name-of)
-   (mime-type :initarg :mime-type :reader mime-type-of)))
+   (mime-type :initarg :mime-type :reader mime-type-of)
+   (note :initarg :note :accessor note-of)))
+
+(defmethod storage-dependencies ((type (eql 'file)))
+  '((note-of note)))
 
 (defmethod print-object ((file file) stream)
   (print-unreadable-object (file stream :type t :identity t)
@@ -18,7 +22,8 @@
 (defmethod serialize nconc ((file file))
   (list :hash (hash-of file)
         :name (name-of file)
-        :mime-type (mime-type-of file)))
+        :mime-type (mime-type-of file)
+        :note (storage-id (note-of file))))
 
 (defmethod linkable-href ((file file))
   (restas:genurl 'file :id (storage-id file) :name (name-of file)))
