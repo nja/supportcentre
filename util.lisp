@@ -23,7 +23,7 @@
 (defun print-urls (&key (stream *standard-output*)
                      (prefix "http://localhost")
                      (port nil))
-  (dolist (type '(area issue note user))
+  (dolist (type '(area issue note user file))
     (dolist (thing (storage-read-set type :all))
       (format stream "~&~a~a~a"
               prefix
