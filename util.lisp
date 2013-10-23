@@ -26,3 +26,13 @@
   (if (slot-boundp object slot-name)
       (slot-value object slot-name)
       default))
+
+(defun print-urls (&key (stream *standard-output*)
+                     (prefix "http://localhost")
+                     (port nil))
+  (dolist (type '(area issue note user))
+    (dolist (thing (storage-read-set type :all))
+      (format stream "~&~a~a~a"
+              prefix
+              (if port (format nil ":~d" port) "")
+              (href thing)))))
