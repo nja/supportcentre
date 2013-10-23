@@ -13,11 +13,9 @@
 
 (defmethod print-object ((file file) stream)
   (print-unreadable-object (file stream :type t :identity t)
-    (format stream
-            "~a ~a ~a"
+    (format stream "~a ~a"
             (subseq (hash-of file) 0 6)
-            (name-of file)
-            (mime-type-of file))))
+            (name-of file))))
 
 (defmethod serialize nconc ((file file))
   (list :hash (hash-of file)
