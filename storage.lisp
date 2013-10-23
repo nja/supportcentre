@@ -65,7 +65,7 @@
           (sets (deserialize 'list sets-string)))
       (setf (storage-id thing) id
             (storage-sets thing) sets)
-      thing)))
+      (cache-add thing))))
 
 (defun read-things-data (type ids)
   (when-let (data&sets (redis:with-pipelining
@@ -76,26 +76,33 @@
           for (data sets) on data&sets by #'cddr
           collect (list id data sets))))
 
-(defun create-hash (type data)
-  (loop with hash = (make-hash-table)
-        for (id thing sets) in data
-        do (setf (gethash id hash)
-                 (create type id thing sets))
-        finally (return hash)))
+(defun uncached-ids (type ids)
+  (if *read-cache*
+      (loop with cache = *read-cache*
+            with key = (cons type nil)
+            for id in ids
+            for present-p = (progn (setf (cdr key) id)
+                                   (gethash key cache))
+            unless present-p
+              do (setf (gethash key cache) :pending)
+            unless present-p collect id)
+      ids))
 
 (defmethod storage-read-many ((type symbol) ids)
-  (let* ((unique-ids (unique ids))
-         (data (read-things-data type unique-ids))
-         (hash (create-hash type data)))
-    (storage-read-dependencies type (hash-table-values hash))
-    (mapcar #'(lambda (id) (gethash id hash)) ids)))
+  (with-read-cache
+    (let* ((uncached-ids (uncached-ids type ids))
+           (data (read-things-data type uncached-ids))
+           (created (mapcar (lambda (data) (apply #'create type data))
+                            data)))
+      (storage-read-dependencies type created)
+      (mapcar #'(lambda (id) (cache-read type id)) ids))))
 
 (defmethod storage-read-set ((type symbol) set)
   (storage-read-many type (read-id-set (set-key type set))))
 
 (defmethod storage-lookup ((type symbol) (lookup symbol) value)
   (when-let (id (red:get (lookup-key type lookup value)))
-    (storage-read type id)))
+    (cache-read type id)))
 
 (defmethod storage-update ((thing storable))
   (let ((serialized (serialize thing))
@@ -125,15 +132,16 @@
           (storage-dependencies (storage-type thing))))
 
 (defmethod storage-read-dependencies ((type symbol) things)
-  (dolist (dependency (storage-dependencies type) things)
-    (destructuring-bind (accessor dep-type) dependency
-      (let* ((dep-ids (mapcar accessor things))
-             (dep-things (storage-read-many dep-type dep-ids))
-             (setter (fdefinition `(setf ,accessor))))
-        (mapc (lambda (thing dep)
-                (funcall setter dep thing))
-              things
-              dep-things)))))
+  (with-read-cache
+    (dolist (dependency (storage-dependencies type) things)
+      (destructuring-bind (accessor dep-type) dependency
+        (let* ((dep-ids (mapcar accessor things))
+               (dep-things (storage-read-many dep-type dep-ids))
+               (setter (fdefinition `(setf ,accessor))))
+          (mapc (lambda (thing dep)
+                  (funcall setter dep thing))
+                things
+                dep-things))))))
 
 (defmethod storage-read-backrefs ((type symbol) (thing storable) &key (from 0) (to -1))
   (let* ((storage-key (backref-key thing type))
@@ -143,6 +151,23 @@
 (defmethod storage-create :after ((thing storable))
   (dolist (dep (storage-dependencies thing))
     (add-backref dep thing)))
+
+(defmacro with-read-cache (&body body)
+  `(let ((*read-cache* (or *read-cache* (make-hash-table :test 'equal))))
+     ,@body))
+
+(defvar *read-cache* nil)
+
+(defun cache-read (type id)
+  (or (when *read-cache* (gethash (cons type id) *read-cache*))
+      (storage-read type id)))
+
+(defun cache-add (thing)
+  (if *read-cache*
+      (setf (gethash (cons (storage-type thing) (storage-id thing))
+                     *read-cache*)
+            thing)
+      thing))
 
 (defun add-backref (dep thing)
   (red:rpush (backref-key dep (storage-type thing)) (storage-id thing)))
