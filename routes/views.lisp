@@ -65,6 +65,14 @@
 (restas:define-route register ("/register/")
   (list :title "Register an account"))
 
+(restas:define-route file ("/file/:id/:name")
+  (:sift-variables (id 'integer) (name 'string))
+  (declare (ignore name))
+  (redis:with-persistent-connection ()
+    (when-let (file (storage-read 'file id))
+      (hunchentoot:handle-static-file (stored-path-of file)
+                                      (mime-type-of file)))))
+
 (defun must-be-logged-in ()
   (unless (get-user)
     (restas:redirect 'login)))

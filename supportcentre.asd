@@ -29,6 +29,7 @@
                              (:file "user")
                              (:file "area")
                              (:file "issue")
+                             (:file "file")
                              (:file "note")
                              (:file "view")))
                (:module "routes"
