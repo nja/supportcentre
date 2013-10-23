@@ -29,3 +29,8 @@
               prefix
               (if port (format nil ":~d" port) "")
               (href thing)))))
+
+(defun latin1-to-utf8 (string)
+  (flex:octets-to-string
+   (flex:string-to-octets string :external-format :latin1)
+   :external-format :utf-8))

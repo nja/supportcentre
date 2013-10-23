@@ -53,5 +53,9 @@
   (when-let (path (and tuple (listp tuple) (probe-file (first tuple))))
     (make-instance 'file
                    :hash (store-file path)
-                   :name (second tuple)
+                   :name (try-convert-filename (second tuple))
                    :mime-type (third tuple))))
+
+(defun try-convert-filename (string)
+  (handler-case (latin1-to-utf8 string)
+    (error () string)))
