@@ -24,6 +24,9 @@
                                    :issue issue
                                    :text (post-parameter "text"))))
           (storage-create note)
+          (when-let (file (handle-upload (post-parameter "file")))
+            (setf (note-of file) note)
+            (storage-create file))
           (restas:redirect 'issue :area-id area-id :issue-id (storage-id issue)))))))
 
 (restas:define-route login/post ("/login/" :method :post)
