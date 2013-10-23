@@ -21,7 +21,7 @@
 {template issue}
   <h1>Issue #{$issue.id}: {$issue.subject}</h1>
   <table>
-    <tr><th>User</th><th>Text</th><th>Time</th></tr>
+    <tr><th>User</th><th>Text</th><th>Time</th><th>Attachments</th></tr>
     {foreach $note in $notes}
       {call noteRow data="$note" /}
     {/foreach}
@@ -42,6 +42,11 @@
     <td><a href="{$user.href}">{$user.name}</a></td>
     <td>{$text}</td>
     <td>{$changeTime}</td>
+    <td>
+      {foreach $file in $files}
+        <a href="{$file.href}">{$file.name}</a><br/>
+      {/foreach}
+    </td>
   </tr>
 {/template}
 

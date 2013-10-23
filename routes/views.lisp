@@ -26,7 +26,7 @@
                            (subject-of issue))
             :issue issue
             :notes (redis:with-persistent-connection ()
-                     (notes-of issue))
+                     (load-note-files (notes-of issue)))
             :home (restas:genurl 'area-list)
             :area (area-of issue)))))
 
