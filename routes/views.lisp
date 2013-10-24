@@ -1,5 +1,13 @@
 (in-package #:supportcentre)
 
+(restas:define-route area-list ("")
+  (list :title "Support Centre Areas"
+        :areas (redis:with-persistent-connection ()
+                  (storage-read-set 'area :all))
+        :links (list (list :href (restas:genurl 'user-list) :text "Users")
+                     (list :href (restas:genurl 'register) :text "Register")
+                     (list :href (restas:genurl 'login) :text "Login"))))
+
 (restas:define-route area ("/area/:id")
   (:sift-variables (id 'integer))
   (redis:with-persistent-connection ()
@@ -10,11 +18,6 @@
             :area area
             :issues (issues-of area)
             :links (make-links (home))))))
-
-(restas:define-route area-list ("")
-  (list :title "Hello, World"
-        :areas (redis:with-persistent-connection ()
-                  (storage-read-set 'area :all))))
 
 (defun make-links (&rest linkables)
   (mapcar (lambda (thing)
