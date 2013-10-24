@@ -11,5 +11,5 @@
 (defmethod storage-dependencies ((type (eql 'area)))
   '((user-of user)))
 
-(defmethod issues-of ((area area) &key (from 0) (to -1))
-  (storage-read-backrefs 'issue area :from from :to to))
+(defmethod issues-of ((area area) &key (start 0) (stop -1))
+  (storage-read-backrefs 'issue area :start start :stop stop))

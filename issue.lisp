@@ -1,6 +1,6 @@
 (in-package #:supportcentre)
 
-(defgeneric issues-of (thing &key from to))
+(defgeneric issues-of (thing &key start stop))
 
 (defclass issue (storable linkable timed)
   ((subject :initarg :subject :accessor subject-of)
@@ -16,8 +16,8 @@
         :creator (storage-id (user-of issue))
         :area (storage-id (area-of issue))))
 
-(defmethod notes-of ((issue issue) &key (from 0) (to -1))
-  (storage-read-backrefs 'note issue :from from :to to))
+(defmethod notes-of ((issue issue) &key (start 0) (stop -1))
+  (storage-read-backrefs 'note issue :start start :stop stop))
 
 (defmethod linkable-href ((issue issue))
   (restas:genurl 'issue

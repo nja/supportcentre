@@ -8,7 +8,7 @@
 (defgeneric storage-read (type id))
 (defgeneric storage-read-many (type ids))
 (defgeneric storage-read-set (type set))
-(defgeneric storage-read-backrefs (type thing &key from to))
+(defgeneric storage-read-backrefs (type thing &key start stop))
 (defgeneric storage-update (thing))
 (defgeneric storage-lookup (type lookup value))
 (defgeneric storage-exists-p (type id))
@@ -143,9 +143,9 @@
                 things
                 dep-things))))))
 
-(defmethod storage-read-backrefs ((type symbol) (thing storable) &key (from 0) (to -1))
+(defmethod storage-read-backrefs ((type symbol) (thing storable) &key (start 0) (stop -1))
   (let* ((storage-key (backref-key thing type))
-         (ids (read-id-list storage-key :from from :to to)))
+         (ids (read-id-list storage-key :start start :stop stop)))
     (storage-read-many type ids)))
 
 (defmethod storage-create :after ((thing storable))
@@ -199,5 +199,5 @@
 (defun read-id-set (key)
   (mapcar #'parse-integer (red:smembers key)))
 
-(defun read-id-list (key &key (from 0) (to -1))
-  (mapcar #'parse-integer (red:lrange key from to)))
+(defun read-id-list (key &key (start 0) (stop -1))
+  (mapcar #'parse-integer (red:lrange key start stop)))

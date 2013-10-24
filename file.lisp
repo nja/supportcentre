@@ -2,7 +2,7 @@
 
 (defparameter *file-directory* "/tmp/supportfiles/")
 
-(defgeneric files-of (thing &key from to))
+(defgeneric files-of (thing &key start stop))
 
 (defclass file (storable linkable)
   ((hash :initarg :hash :reader hash-of)

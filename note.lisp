@@ -1,6 +1,6 @@
 (in-package #:supportcentre)
 
-(defgeneric notes-of (thing &key from to))
+(defgeneric notes-of (thing &key start stop))
 
 (defclass note (storable linkable timed)
   ((issue :initarg :issue :initform nil :accessor issue-of)
@@ -26,8 +26,8 @@
 (defmethod area-of ((note note))
   (area-of (issue-of note)))
 
-(defmethod files-of ((note note) &key (from 0) (to -1))
-  (storage-read-backrefs 'file note :from from :to to))
+(defmethod files-of ((note note) &key (start 0) (stop -1))
+  (storage-read-backrefs 'file note :start start :stop stop))
 
 (defun load-note-files (notes)
   (mapc (lambda (n) (setf (slot-value n 'files) (files-of n)))
