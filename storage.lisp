@@ -76,6 +76,12 @@
           for (data sets) on data&sets by #'cddr
           collect (list id data sets))))
 
+(defvar *read-cache* nil)
+
+(defmacro with-read-cache (&body body)
+  `(let ((*read-cache* (or *read-cache* (make-hash-table :test 'equal))))
+     ,@body))
+
 (defun uncached-ids (type ids)
   (if *read-cache*
       (loop with cache = *read-cache*
@@ -151,12 +157,6 @@
 (defmethod storage-create :after ((thing storable))
   (dolist (dep (storage-dependencies thing))
     (add-backref dep thing)))
-
-(defmacro with-read-cache (&body body)
-  `(let ((*read-cache* (or *read-cache* (make-hash-table :test 'equal))))
-     ,@body))
-
-(defvar *read-cache* nil)
 
 (defun cache-read (type id)
   (or (when *read-cache* (gethash (cons type id) *read-cache*))
