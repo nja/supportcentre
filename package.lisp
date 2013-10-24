@@ -1,4 +1,4 @@
-;;;; package.lisp
+(in-package #:cl-user)
 
 (restas:define-module #:supportcentre
   (:use #:cl #:alexandria #:local-time)
