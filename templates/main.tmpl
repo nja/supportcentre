@@ -7,6 +7,17 @@
     </head>
     <body>
       {$body | noAutoescape}
+      {call links data="all" /}
     </body>
   </html>
+{/template}
+
+{template links}
+  {if $links}
+    <ul>
+      {foreach $link in $links}
+        <li><a href="{$link.href}">{$link.text}</a></li>
+      {/foreach}
+    </ul>
+  {/if}
 {/template}

@@ -9,12 +9,23 @@
                            (name-of area))
             :area area
             :issues (issues-of area)
-            :home (restas:genurl 'area-list)))))
+            :links (make-links (home))))))
 
 (restas:define-route area-list ("")
   (list :title "Hello, World"
         :areas (redis:with-persistent-connection ()
                   (storage-read-set 'area :all))))
+
+(defun make-links (&rest linkables)
+  (mapcar (lambda (thing)
+            (if (listp thing)
+                thing
+                (multiple-value-bind (href text) (linkable-href thing)
+                  (list :href href :text text))))
+          linkables))
+
+(defun home ()
+  (list :href (restas:genurl 'area-list) :text "Home"))
 
 (restas:define-route issue ("/area/:area-id/issue/:issue-id")
   (:sift-variables (area-id 'integer) (issue-id 'integer))
@@ -27,8 +38,8 @@
             :issue issue
             :notes (redis:with-persistent-connection ()
                      (load-note-files (notes-of issue)))
-            :home (restas:genurl 'area-list)
-            :area (area-of issue)))))
+            :area (area-of issue)
+            :links (make-links (home) (area-of issue))))))
 
 (restas:define-route note ("/area/:area-id/issue/:issue-id/note/:note-id")
   (:sift-variables (area-id 'integer) (issue-id 'integer) (note-id 'integer))
@@ -43,7 +54,8 @@
                                (subject-of issue))
                 :issue issue
                 :notes (notes-of issue)
-                :note note))))))
+                :note note
+                :links (make-links (home) area)))))))
 
 (restas:define-route user ("/user/:id")
   (:sift-variables (id 'integer))
@@ -53,14 +65,15 @@
                            (storage-id user)
                            (name-of user))
             :user user
-            :issues (issues-of user)))))
+            :issues (issues-of user)
+            :links (make-links (home))))))
 
 (restas:define-route user-list ("/user/")
   (redis:with-persistent-connection ()
     (list :title "User list"
           :users (redis:with-persistent-connection ()
                    (storage-read-set 'user :all))
-          :home (restas:genurl 'area-list))))
+          :links (make-links (home)))))
 
 (restas:define-route register ("/register/")
   (list :title "Register an account"))

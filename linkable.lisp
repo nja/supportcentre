@@ -6,7 +6,9 @@
   ((href :accessor href)))
 
 (defmethod linkable-href ((thing storable))
-  (restas:genurl (storage-type thing) :id (storage-id thing)))
+  (values
+   (restas:genurl (storage-type thing) :id (storage-id thing))
+   (format nil "~a: ~a" (type-of thing) (storage-id thing))))
 
 (defgeneric set-href (thing))
 

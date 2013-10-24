@@ -18,10 +18,12 @@
         :text (text-of note)))
 
 (defmethod linkable-href ((note note))
-  (restas:genurl 'note
-                 :area-id (storage-id (area-of note))
-                 :issue-id (storage-id (issue-of note))
-                 :note-id (storage-id note)))
+  (values
+   (restas:genurl 'note
+                  :area-id (storage-id (area-of note))
+                  :issue-id (storage-id (issue-of note))
+                  :note-id (storage-id note))
+   (format nil "~a: ~a" (user-of note) (creation-time-of note))))
 
 (defmethod area-of ((note note))
   (area-of (issue-of note)))

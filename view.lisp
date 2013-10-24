@@ -18,8 +18,8 @@
 (defmethod restas:render-object ((view view) (data list))
   (let ((route (restas:route-symbol restas:*route*)))
     (finalize-page view
-                   (list :body (render-route-data view data route)
-                         :title (getf data :title)))))
+                   (nconc (list :body (render-route-data view data route))
+                          data))))
 
 (defgeneric finalize-page (view data))
 

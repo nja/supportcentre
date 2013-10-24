@@ -20,6 +20,8 @@
   (storage-read-backrefs 'note issue :start start :stop stop))
 
 (defmethod linkable-href ((issue issue))
-  (restas:genurl 'issue
-                 :area-id (storage-id (area-of issue))
-                 :issue-id (storage-id issue)))
+  (values
+   (restas:genurl 'issue
+                  :area-id (storage-id (area-of issue))
+                  :issue-id (storage-id issue))
+   (subject-of issue)))

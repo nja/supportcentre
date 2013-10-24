@@ -8,6 +8,11 @@
   (list :name (name-of area)
         :owner (storage-id (user-of area))))
 
+(defmethod linkable-href ((area area))
+  (values
+   (call-next-method)
+   (name-of area)))
+
 (defmethod storage-dependencies ((type (eql 'area)))
   '((user-of user)))
 
