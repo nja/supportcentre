@@ -16,6 +16,11 @@
         :realname (realname-of user)
         :password (password-of user)))
 
+(defmethod linkable-href ((user user))
+  (values
+   (call-next-method)
+   (name-of user)))
+
 (defmethod storage-update :after ((user user))
   (red:set (lookup-key 'user :name (name-of user))
            (storage-id user)))
