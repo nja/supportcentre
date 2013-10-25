@@ -52,6 +52,14 @@
     (setf (storage-id thing) id)
     (values id (storage-update thing))))
 
+(defvar *read-cache* nil)
+
+(defmacro with-read-cache (&body body)
+  `(if *read-cache*
+       (progn ,@body)
+       (let ((*read-cache* (make-hash-table :test 'equal)))
+         ,@body)))
+
 (defmethod storage-read ((type symbol) id)
   (let ((thing (apply #'create type id (redis:with-pipelining
                                          (red:get (thing-key type id))
@@ -85,14 +93,6 @@
     (loop for id in ids
           for (data sets) on data&sets by #'cddr
           collect (list id data sets))))
-
-(defvar *read-cache* nil)
-
-(defmacro with-read-cache (&body body)
-  `(if *read-cache*
-       (progn ,@body)
-       (let ((*read-cache* (make-hash-table :test 'equal)))
-         ,@body)))
 
 (defun uncached-ids (type ids)
   (if *read-cache*
