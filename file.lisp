@@ -31,6 +31,9 @@
    (restas:genurl 'file :id (storage-id file) :name (name-of file))
    (name-of file)))
 
+(defmethod area-of ((file file))
+  (area-of (note-of file)))
+
 (defun stored-path-of (file)
   (in-file-directory (hash-subpath (hash-of file))))
 

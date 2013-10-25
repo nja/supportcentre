@@ -41,9 +41,13 @@
                  (ironclad:ascii-string-to-byte-array cleartext))))
     (setf (password-of user) digest)))
 
-(defun get-user ()
+(defun get-user-id ()
   (when-let (user-id (hunchentoot:session-value 'user-id))
-    (storage-read 'user (parse-integer user-id))))
+    (parse-integer user-id)))
+
+(defun get-user ()
+  (when-let (user-id (get-user-id))
+    (storage-read 'user user-id)))
 
 (defun set-user (user)
   (setf (hunchentoot:session-value 'user-id)

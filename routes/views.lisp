@@ -1,6 +1,7 @@
 (in-package #:supportcentre)
 
 (restas:define-route area-list ("")
+  (must-be-logged-in)
   (list :title "Support Centre Areas"
         :areas (redis:with-persistent-connection ()
                  (storage-read-set 'area 'area :all))
@@ -13,6 +14,7 @@
   (redis:with-persistent-connection ()
     (must-be-logged-in)
     (when-let (area (storage-read 'area id))
+      (must-be-member area :reader)
       (list :title (format nil "Area #~d: ~a"
                            (storage-id area)
                            (name-of area))
@@ -36,6 +38,7 @@
   (redis:with-persistent-connection ()
     (must-be-logged-in)
     (when-let (issue (storage-read 'issue issue-id))
+      (must-be-member (area-of issue) :reader)
       (when (equal area-id (storage-id (area-of issue)))
         (list :title (format nil "Issue #~d: ~a"
                              (storage-id issue)
@@ -52,6 +55,7 @@
     (when-let (note (storage-read 'note note-id))
       (let ((area (area-of note))
             (issue (issue-of note)))
+        (must-be-member area :reader)
         (when (and (equal area-id (storage-id area))
                    (equal issue-id (storage-id issue)))
           (list :title (format nil "Issue #~d: ~a"
@@ -91,9 +95,21 @@
   (redis:with-persistent-connection ()
     (must-be-logged-in)
     (when-let (file (storage-read 'file id))
+      (must-be-member (area-of file) :reader)
       (hunchentoot:handle-static-file (stored-path-of file)
                                       (mime-type-of file)))))
 
 (defun must-be-logged-in ()
   (unless (get-user)
     (restas:redirect 'login :forward (hunchentoot:request-uri*))))
+
+(defun must-be-member (thing set)
+  (let ((member-ids (read-id-set (thing-set-key thing set)))
+        (user-id (get-user-id)))
+    (unless (member user-id member-ids)
+      (forbidden))))
+
+(defun forbidden ()
+  (setf (hunchentoot:return-code hunchentoot:*reply*)
+        hunchentoot:+http-forbidden+)
+  (hunchentoot:abort-request-handler))
