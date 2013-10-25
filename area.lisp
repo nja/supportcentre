@@ -1,6 +1,6 @@
 (in-package #:supportcentre)
 
-(defclass area (storable linkable)
+(defclass area (storable linkable timed)
   ((name :initarg :name :accessor name-of)
    (owner :initarg :owner :accessor user-of)))
 

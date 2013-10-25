@@ -2,7 +2,7 @@
 
 {template areaList}
   <table>
-    <tr><th>Id</th><th>Name</th><th>Owner</th></tr>
+    <tr><th>Id</th><th>Name</th><th>Owner</th><th>Last change</th></tr>
     {foreach $area in $areas}
       {call areaRow data="$area" /}
     {/foreach}
@@ -14,6 +14,7 @@
     <td><a href="{$href}">{$id}</a></td>
     <td><a href="{$href}">{$name}</a></td>
     <td><a href="{$owner.href}">{$owner.name}</a></td>
+    <td>{$changeTime}</td>
   </tr>
 {/template}
 
