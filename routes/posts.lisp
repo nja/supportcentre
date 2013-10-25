@@ -34,9 +34,10 @@
   (let ((user (redis:with-persistent-connection ()
                 (storage-lookup 'user :name (post-parameter "username")))))
     (when (correct-password-p user (post-parameter "password"))
-      (set-user user)
-      (restas:redirect 'user :id (storage-id user)))
-    (restas:redirect 'login)))
+      (set-user user))
+    (when-let (forward (post-parameter "forward"))
+      (hunchentoot:redirect forward))
+    (restas:redirect 'area-list)))
 
 (restas:define-route register/post ("/register/" :method :post)
   (:requirement #'(lambda () (post-parameter "register")))
@@ -49,7 +50,8 @@
     (restas:redirect 'user :id (storage-id user))))
 
 (restas:define-route login ("/login/")
-  (list :title "Log in"))
+  (list :title "Log in"
+        :forward (hunchentoot:get-parameter "forward")))
 
 (restas:define-route logout ("/logout/")
   (set-user nil)
