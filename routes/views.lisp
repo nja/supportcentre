@@ -108,6 +108,11 @@
       (hunchentoot:handle-static-file (stored-path-of file)
                                       (mime-type-of file)))))
 
+(restas:define-route login ("/login/")
+  (list :title "Log in"
+        :forward (hunchentoot:get-parameter "forward")
+        :links (make-links (list :href (restas:genurl 'register) :text "Register"))))
+
 (defun must-be-logged-in ()
   (unless (get-user)
     (restas:redirect 'login :forward (hunchentoot:request-uri*))))

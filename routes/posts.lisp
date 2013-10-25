@@ -51,10 +51,6 @@
       (storage-create user))
     (restas:redirect 'user :id (storage-id user))))
 
-(restas:define-route login ("/login/")
-  (list :title "Log in"
-        :forward (hunchentoot:get-parameter "forward")))
-
 (restas:define-route logout ("/logout/")
   (set-user nil)
   (restas:redirect 'login))
