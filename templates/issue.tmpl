@@ -47,17 +47,21 @@
 {/template}
 
 {template createIssue}
-  <form method="post" action="/area/{$area.id}/issue/">
-    Subject: <input name="subject" type="text" />
-    <input type="submit" value="save" name="save" />
-  </form>
+  {if $posterp}
+    <form method="post" action="/area/{$area.id}/issue/">
+      Subject: <input name="subject" type="text" />
+      <input type="submit" value="save" name="save" />
+    </form>
+  {/if}
 {/template}
 
 {template createNote}
-  <form method="post" action="/area/{$issue.area.id}/issue/{$issue.id}/note/"
-        enctype="multipart/form-data" accept-charset="UTF-8">
-    Text: <input name="text" type="text" />
-    File: <input name="file" type="file" />
-    <input type="submit" value="Comment" name="save" />
-  </form>
+  {if $posterp}
+    <form method="post" action="/area/{$issue.area.id}/issue/{$issue.id}/note/"
+          enctype="multipart/form-data" accept-charset="UTF-8">
+      Text: <input name="text" type="text" />
+      File: <input name="file" type="file" />
+      <input type="submit" value="Comment" name="save" />
+    </form>
+  {/if}
 {/template}

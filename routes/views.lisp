@@ -20,6 +20,7 @@
                            (name-of area))
             :area area
             :issues (issues-of area)
+            :posterp (memberp area :poster)
             :links (make-links (home))))))
 
 (defun make-links (&rest linkables)
@@ -46,6 +47,7 @@
               :issue issue
               :notes (load-note-files (notes-of issue))
               :area (area-of issue)
+              :posterp (memberp (area-of issue) :poster)
               :links (make-links (home) (area-of issue)))))))
 
 (restas:define-route note ("/area/:area-id/issue/:issue-id/note/:note-id")
@@ -64,6 +66,7 @@
                 :issue issue
                 :notes (notes-of issue)
                 :note note
+                :posterp (memberp area :poster)
                 :links (make-links (home) area)))))))
 
 (restas:define-route user ("/user/:id")
@@ -103,11 +106,14 @@
   (unless (get-user)
     (restas:redirect 'login :forward (hunchentoot:request-uri*))))
 
-(defun must-be-member (thing set)
+(defun memberp (thing set)
   (let ((member-ids (read-id-set (thing-set-key thing set)))
         (user-id (get-user-id)))
-    (unless (member user-id member-ids)
-      (forbidden))))
+    (member user-id member-ids)))
+
+(defun must-be-member (thing set)
+  (unless (memberp thing set)
+    (forbidden)))
 
 (defun forbidden ()
   (setf (hunchentoot:return-code hunchentoot:*reply*)

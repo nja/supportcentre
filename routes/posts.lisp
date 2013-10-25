@@ -6,6 +6,7 @@
   (redis:with-persistent-connection ()
     (must-be-logged-in)
     (when-let (area (storage-read 'area area-id))
+      (must-be-member area :poster)
       (storage-create (make-instance 'issue
                                      :area area
                                      :subject (post-parameter "subject")
@@ -19,6 +20,7 @@
     (must-be-logged-in)
     (let ((issue (storage-read 'issue issue-id)))
       (when (equal area-id (storage-id (area-of issue)))
+        (must-be-member (area-of issue) :poster)
         (let ((note (make-instance 'note
                                    :user (get-user)
                                    :issue issue
