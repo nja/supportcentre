@@ -89,8 +89,10 @@
 (defvar *read-cache* nil)
 
 (defmacro with-read-cache (&body body)
-  `(let ((*read-cache* (or *read-cache* (make-hash-table :test 'equal))))
-     ,@body))
+  `(if *read-cache*
+       (progn ,@body)
+       (let ((*read-cache* (make-hash-table :test 'equal)))
+         ,@body)))
 
 (defun uncached-ids (type ids)
   (if *read-cache*
