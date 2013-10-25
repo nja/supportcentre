@@ -6,7 +6,6 @@
 (defgeneric storage-key (thing))
 (defgeneric storage-create (thing))
 (defgeneric storage-read (type id))
-(defgeneric storage-read-many (type ids))
 (defgeneric storage-read-set (type owner set))
 (defgeneric storage-read-backrefs (type thing &key start stop))
 (defgeneric storage-update (thing))
@@ -61,6 +60,15 @@
       (storage-read-dependencies type (list thing)))
     thing))
 
+(defmethod storage-read ((type symbol) (ids list))
+  (with-read-cache
+    (let* ((uncached-ids (uncached-ids type ids))
+           (data (read-things-data type uncached-ids))
+           (created (mapcar (lambda (data) (apply #'create type data))
+                            data)))
+      (storage-read-dependencies type created)
+      (mapcar #'(lambda (id) (cache-read type id)) ids))))
+
 (defun create (type id thing-string sets-string)
   (when (and thing-string sets-string)
     (let ((thing (deserialize type thing-string))
@@ -96,20 +104,11 @@
             unless present-p collect id)
       ids))
 
-(defmethod storage-read-many ((type symbol) ids)
-  (with-read-cache
-    (let* ((uncached-ids (uncached-ids type ids))
-           (data (read-things-data type uncached-ids))
-           (created (mapcar (lambda (data) (apply #'create type data))
-                            data)))
-      (storage-read-dependencies type created)
-      (mapcar #'(lambda (id) (cache-read type id)) ids))))
-
 (defmethod storage-read-set ((type symbol) (owner symbol) set)
-  (storage-read-many type (read-id-set (set-key owner set))))
+  (storage-read type (read-id-set (set-key owner set))))
 
 (defmethod storage-read-set ((type symbol) (owner storable) set)
-  (storage-read-many type (read-id-set (thing-set-key owner set))))
+  (storage-read type (read-id-set (thing-set-key owner set))))
 
 (defmethod storage-set-add ((owner storable) set (addee storable))
   (red:sadd (thing-set-key owner set) (storage-id addee)))
@@ -153,7 +152,7 @@
     (dolist (dependency (storage-dependencies type) things)
       (destructuring-bind (accessor dep-type) dependency
         (let* ((dep-ids (mapcar accessor things))
-               (dep-things (storage-read-many dep-type dep-ids))
+               (dep-things (storage-read dep-type dep-ids))
                (setter (fdefinition `(setf ,accessor))))
           (mapc (lambda (thing dep)
                   (funcall setter dep thing))
@@ -163,7 +162,7 @@
 (defmethod storage-read-backrefs ((type symbol) (thing storable) &key (start 0) (stop -1))
   (let* ((storage-key (backref-key thing type))
          (ids (read-id-list storage-key :start start :stop stop)))
-    (storage-read-many type ids)))
+    (storage-read type ids)))
 
 (defmethod storage-create :after ((thing storable))
   (dolist (dep (storage-dependencies thing))
