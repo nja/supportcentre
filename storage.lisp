@@ -7,13 +7,15 @@
 (defgeneric storage-create (thing))
 (defgeneric storage-read (type id))
 (defgeneric storage-read-many (type ids))
-(defgeneric storage-read-set (type set))
+(defgeneric storage-read-set (type owner set))
 (defgeneric storage-read-backrefs (type thing &key start stop))
 (defgeneric storage-update (thing))
 (defgeneric storage-lookup (type lookup value))
 (defgeneric storage-exists-p (type id))
 (defgeneric storage-read-dependencies (type things))
 (defgeneric storage-dependencies (type))
+(defgeneric storage-set-add (owner set addee))
+(defgeneric storage-set-remove (owner set removee))
 
 (defclass storable ()
   ((id :initarg :id :accessor storage-id)
@@ -103,8 +105,17 @@
       (storage-read-dependencies type created)
       (mapcar #'(lambda (id) (cache-read type id)) ids))))
 
-(defmethod storage-read-set ((type symbol) set)
-  (storage-read-many type (read-id-set (set-key type set))))
+(defmethod storage-read-set ((type symbol) (owner symbol) set)
+  (storage-read-many type (read-id-set (set-key owner set))))
+
+(defmethod storage-read-set ((type symbol) (owner storable) set)
+  (storage-read-many type (read-id-set (thing-set-key owner set))))
+
+(defmethod storage-set-add ((owner storable) set (addee storable))
+  (red:sadd (thing-set-key owner set) (storage-id addee)))
+
+(defmethod storage-set-remove ((owner storable) set (removee storable))
+  (red:srem (thing-set-key owner set) (storage-id removee)))
 
 (defmethod storage-lookup ((type symbol) (lookup symbol) value)
   (when-let (id (red:get (lookup-key type lookup value)))
@@ -177,6 +188,9 @@
 
 (defun set-key (type set)
   (make-key type 'set set))
+
+(defun thing-set-key (thing set)
+  (make-key (thing-key (type-of thing) (storage-id thing)) 'set set))
 
 (defun sets-key (type id)
   (make-key type id 'sets))

@@ -3,7 +3,7 @@
 (restas:define-route area-list ("")
   (list :title "Support Centre Areas"
         :areas (redis:with-persistent-connection ()
-                 (storage-read-set 'area :all))
+                 (storage-read-set 'area 'area :all))
         :links (list (list :href (restas:genurl 'user-list) :text "Users")
                      (list :href (restas:genurl 'register) :text "Register")
                      (list :href (restas:genurl 'login) :text "Login"))))
@@ -79,7 +79,7 @@
     (must-be-logged-in)
     (list :title "User list"
           :users (redis:with-persistent-connection ()
-                   (storage-read-set 'user :all))
+                   (storage-read-set 'user 'user :all))
           :links (make-links (home)))))
 
 (restas:define-route register ("/register/")

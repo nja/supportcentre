@@ -24,7 +24,7 @@
                      (prefix "http://localhost")
                      (port nil))
   (dolist (type '(area issue note user file))
-    (dolist (thing (storage-read-set type :all))
+    (dolist (thing (storage-read-set type type :all))
       (format stream "~&~a~a~a"
               prefix
               (if port (format nil ":~d" port) "")
