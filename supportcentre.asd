@@ -37,7 +37,8 @@
                              (:file "note")
                              (:file "view")))
                (:module "routes"
-                :components ((:file "posts")
+                :components ((:file "routes-util")
+                             (:file "posts")
                              (:file "views")
                              (:file "redirects")))))
 
