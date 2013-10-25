@@ -31,6 +31,9 @@
 (defmethod files-of ((note note) &key (start 0) (stop -1))
   (storage-read-backrefs 'file note :start start :stop stop))
 
+(defmethod storage-update :after ((note note))
+  (storage-update (issue-of note)))
+
 (defun load-note-files (notes)
   (mapc (lambda (n) (setf (slot-value n 'files) (files-of n)))
         notes))

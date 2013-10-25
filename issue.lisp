@@ -25,3 +25,6 @@
                   :area-id (storage-id (area-of issue))
                   :issue-id (storage-id issue))
    (subject-of issue)))
+
+(defmethod storage-update :after ((issue issue))
+  (storage-update (area-of issue)))
