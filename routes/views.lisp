@@ -1,13 +1,14 @@
 (in-package #:supportcentre)
 
 (restas:define-route area-list ("")
-  (must-be-logged-in)
-  (list :title "Support Centre Areas"
-        :areas (redis:with-persistent-connection ()
-                 (storage-read-set 'area 'area :all))
-        :links (list (list :href (restas:genurl 'user-list) :text "Users")
-                     (list :href (restas:genurl 'register) :text "Register")
-                     (list :href (restas:genurl 'login) :text "Login"))))
+  (redis:with-persistent-connection ()
+    (must-be-logged-in)
+    (list :title "Support Centre Areas"
+          :areas (storage-read-set 'area 'area :all)
+          :links (make-links
+                  (list :href (restas:genurl 'user-list) :text "Users")
+                  (get-user)
+                  (login/out)))))
 
 (restas:define-route area ("/area/:id")
   (:sift-variables (id 'integer))
@@ -21,7 +22,7 @@
             :area area
             :issues (issues-of area)
             :posterp (memberp area :poster)
-            :links (make-links (home))))))
+            :links (make-links (home) (get-user) (login/out))))))
 
 (defun make-links (&rest linkables)
   (mapcar (lambda (thing)
@@ -33,6 +34,11 @@
 
 (defun home ()
   (list :href (restas:genurl 'area-list) :text "Home"))
+
+(defun login/out ()
+  (if (get-user)
+      (list :href (restas:genurl 'logout) :text "Log out")
+      (list :href (restas:genurl 'login) :text "Log in")))
 
 (restas:define-route issue ("/area/:area-id/issue/:issue-id")
   (:sift-variables (area-id 'integer) (issue-id 'integer))
@@ -48,7 +54,7 @@
               :notes (load-note-files (notes-of issue))
               :area (area-of issue)
               :posterp (memberp (area-of issue) :poster)
-              :links (make-links (home) (area-of issue)))))))
+              :links (make-links (home) (area-of issue) (get-user) (login/out)))))))
 
 (restas:define-route note ("/area/:area-id/issue/:issue-id/note/:note-id")
   (:sift-variables (area-id 'integer) (issue-id 'integer) (note-id 'integer))
@@ -67,7 +73,7 @@
                 :notes (notes-of issue)
                 :note note
                 :posterp (memberp area :poster)
-                :links (make-links (home) area)))))))
+                :links (make-links (home) area (get-user) (login/out))))))))
 
 (restas:define-route user ("/user/:id")
   (:sift-variables (id 'integer))
@@ -79,7 +85,7 @@
                            (name-of user))
             :user user
             :issues (issues-of user)
-            :links (make-links (home))))))
+            :links (make-links (home) (get-user) (login/out))))))
 
 (restas:define-route user-list ("/user/")
   (redis:with-persistent-connection ()
@@ -87,7 +93,7 @@
     (list :title "User list"
           :users (redis:with-persistent-connection ()
                    (storage-read-set 'user 'user :all))
-          :links (make-links (home)))))
+          :links (make-links (home) (get-user) (login/out)))))
 
 (restas:define-route register ("/register/")
   (list :title "Register an account"))
