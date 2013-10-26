@@ -20,9 +20,11 @@
                            (storage-id area)
                            (name-of area))
             :area area
-            :issues (issues-of area :page :last)
+            :issues (issues-of area :page (get-page))
             :posterp (memberp area :poster)
-            :links (make-links (home) (get-user) (login/out))))))
+            :links (make-links (home) (get-user) (login/out))
+            :pages (make-page-links (pages-of 'issue area) (get-page)
+                                    'area :id id)))))
 
 (restas:define-route issue ("/area/:area-id/issue/:issue-id")
   (:sift-variables (area-id 'integer) (issue-id 'integer))
