@@ -7,6 +7,7 @@
     </head>
     <body>
       {$body | noAutoescape}
+      {call pages data="all" /}
       {call links data="all" /}
     </body>
   </html>
@@ -16,8 +17,22 @@
   {if $links}
     <ul>
       {foreach $link in $links}
-        <li><a href="{$link.href}">{$link.text}</a></li>
+        <li>{call link data="$link" /}</li>
       {/foreach}
     </ul>
   {/if}
+{/template}
+
+{template link}
+  {if $href}
+    <a href="{$href}">{$text}</a>
+  {else}
+    {$text}
+  {/if}
+{/template}
+
+{template pages}
+  {foreach $page in $pages}
+    {call link data="$page" /}&nbsp;
+  {/foreach}
 {/template}
