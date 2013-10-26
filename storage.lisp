@@ -216,3 +216,17 @@
 
 (defun read-id-list (key &key (start 0) (stop -1))
   (mapcar #'parse-integer (red:lrange key start stop)))
+
+(defparameter *page-count* 5)
+
+(defun read-id-page (key &key (page :last) (page-count *page-count*))
+  (if (eq page :last)
+      (let ((count (red:llen key)))
+        (multiple-value-bind (full rest) (truncate count page-count)
+          (read-id-page key :page (if (zerop rest)
+                                      (1- full)
+                                      full)
+                            :page-count page-count)))
+      (read-id-list key :start (* page page-count)
+                        :stop (+ (* page page-count)
+                                 (1- page-count)))))
