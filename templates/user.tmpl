@@ -24,10 +24,17 @@
 
 {template register}
   <form method="post">
-    User name: <input name="username" type="text" /><br>
-    Real name: <input name="realname" type="text" /><br>
-    Password: <input name="password" type="password" /><br>
+    User name: <input name="username" type="text" value="{$username}" />
+    {if $missing == 'username'}Required!{/if}
+    <br>
+    Real name: <input name="realname" type="text" value="{$realname}" />
+    {if $missing == 'realname'}Required!{/if}
+    <br>
+    Password: <input name="password" type="password" />
+    {if $missing == 'password'}Required!{/if}
+    <br>
     <input type="submit" value="register" name="register" />
+    <br>
     {$message}
   </form>
 {/template}

@@ -43,16 +43,15 @@
 
 (restas:define-route register/post ("/register/" :method :post)
   (:requirement #'(lambda () (post-parameter "register")))
-  (let ((user (make-instance 'user
-                             :name (post-parameter "username")
-                             :realname (post-parameter "realname"))))
-    (set-password user (post-parameter "password"))
-    (with-storage
-      (cond ((storage-lookup 'user :name (name-of user))
-             (restas:redirect 'register
-                              :message "User name already registered"))
-            (t (storage-create user)
-               (restas:redirect 'user :id (storage-id user)))))))
+  (with-storage
+    (multiple-value-bind (user message) (create-new-user (post-parameter "username")
+                                                         (post-parameter "realname")
+                                                         (post-parameter "password"))
+      (if user
+        (restas:redirect 'user :id (storage-id user))
+        (restas:redirect 'register :message message
+                                   :username (post-parameter "username")
+                                   :realname (post-parameter "realname"))))))
 
 (restas:define-route logout ("/logout/")
   (set-user nil)

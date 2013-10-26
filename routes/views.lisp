@@ -80,7 +80,11 @@
 
 (restas:define-route register ("/register/")
   (list :title "Register an account"
-        :message (hunchentoot:get-parameter "message")))
+        :forward (hunchentoot:get-parameter "forward")
+        :username (hunchentoot:get-parameter "username")
+        :realname (hunchentoot:get-parameter "realname")
+        :message (hunchentoot:get-parameter "message")
+        :links (make-links (home) (get-user) (login/out))))
 
 (restas:define-route file ("/file/:id/:name")
   (:sift-variables (id 'integer) (name 'string))
@@ -94,5 +98,4 @@
 
 (restas:define-route login ("/login/")
   (list :title "Log in"
-        :forward (hunchentoot:get-parameter "forward")
         :links (make-links (list :href (restas:genurl 'register) :text "Register"))))
