@@ -72,12 +72,13 @@
   (with-storage
     (must-be-logged-in)
     (when-let (user (storage-read 'user id))
-      (list :title (format nil "User ~@r: ~a"
-                           (storage-id user)
-                           (name-of user))
-            :user user
-            :issues (issues-of user)
-            :links (make-links (home) (get-user) (login/out))))))
+      (let ((page (get-page)))
+        (list :title (format nil "User ~@r: ~a" id (name-of user))
+              :user user
+              :issues (issues-of user :page page)
+              :pages (make-page-links (pages-of 'issue user) page
+                                      'user :id id)
+              :links (make-links (home) (get-user) (login/out)))))))
 
 (restas:define-route user-list ("/user/")
   (with-storage
@@ -88,7 +89,6 @@
 
 (restas:define-route register ("/register/")
   (list :title "Register an account"
-        :forward (get-parameter "forward")
         :username (get-parameter "username")
         :realname (get-parameter "realname")
         :message (get-parameter "message")
