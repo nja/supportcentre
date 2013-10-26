@@ -83,9 +83,12 @@
 (restas:define-route user-list ("/user/")
   (with-storage
     (must-be-logged-in)
-    (list :title "User list"
-          :users (storage-read-set 'user 'user :all)
-          :links (make-links (home) (get-user) (login/out)))))
+    (let ((users (read-all-users))
+          (page (get-page)))
+     (list :title "User list"
+           :users (page-range users page)
+           :pages (make-page-links (pages users) page 'user-list)
+           :links (make-links (home) (get-user) (login/out))))))
 
 (restas:define-route register ("/register/")
   (list :title "Register an account"

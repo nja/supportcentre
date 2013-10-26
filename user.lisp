@@ -77,3 +77,8 @@
                    "pending")
         (values (storage-create user) "OK")
         (values nil "Username not available."))))
+
+(defun read-all-users ()
+  (sort (storage-read-set 'user 'user :all)
+        #'string-lessp
+        :key #'name-of))
