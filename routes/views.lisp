@@ -37,10 +37,12 @@
                              (storage-id issue)
                              (subject-of issue))
               :issue issue
-              :notes (load-note-files (notes-of issue))
+              :notes (load-note-files (notes-of issue :page (get-page)))
               :area (area-of issue)
               :posterp (memberp (area-of issue) :poster)
-              :links (make-links (home) (area-of issue) (get-user) (login/out)))))))
+              :links (make-links (home) (area-of issue) (get-user) (login/out))
+              :pages (make-page-links (pages-of 'note issue) (get-page)
+                                      'issue :area-id area-id :issue-id issue-id))))))
 
 (restas:define-route note ("/area/:area-id/issue/:issue-id/note/:note-id")
   (:sift-variables (area-id 'integer) (issue-id 'integer) (note-id 'integer))
