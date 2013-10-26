@@ -16,10 +16,10 @@
   (hunchentoot:abort-request-handler))
 
 (defmethod restas:render-object ((view view) (data list))
-  (let ((route (restas:route-symbol restas:*route*)))
+  (let* ((route (restas:route-symbol restas:*route*))
+         (body (render-route-data view data route)))
     (finalize-page view
-                   (nconc (list :body (render-route-data view data route))
-                          data))))
+                   (nconc (list :body body) data))))
 
 (defgeneric finalize-page (view data))
 
