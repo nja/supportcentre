@@ -50,7 +50,7 @@
 (defmethod storage-create ((thing storable))
   (let ((id (red:incr (next-id-key thing))))
     (setf (storage-id thing) id)
-    (values id (storage-update thing))))
+    (values thing (storage-update thing))))
 
 (defvar *read-cache* nil)
 

@@ -57,3 +57,20 @@
 (defun set-user (user)
   (setf (hunchentoot:session-value 'user-id)
         (when user (storage-id user))))
+
+(defun create-new-user (name realname password)
+  (flet ((required (value desc)
+           (unless (and (stringp value) (string< "" value))
+             (return-from create-new-user
+               (values nil (format nil "~a required" desc))))))
+    (required name "User name")
+    (required realname "Real name")
+    (required password "Password"))
+  (let ((user (make-instance 'user
+                             :name name
+                             :realname realname)))
+    (set-password user password)
+    (if (red:setnx (lookup-key 'user :name (name-of user))
+                   "pending")
+        (values (storage-create user) "OK")
+        (values nil "Username not available."))))
