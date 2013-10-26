@@ -1,5 +1,10 @@
 (in-package #:supportcentre)
 
+(defmacro with-storage (&body body)
+  `(redis:with-persistent-connection ()
+     (with-read-cache
+       ,@body)))
+
 (defun make-links (&rest linkables)
   (mapcar (lambda (thing)
             (if (listp thing)

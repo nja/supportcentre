@@ -3,7 +3,7 @@
 (restas:define-route issue/post ("/area/:area-id/issue/" :method :post)
   (:sift-variables (area-id 'integer))
   (:requirement #'(lambda () (post-parameter "save")))
-  (redis:with-persistent-connection ()
+  (with-storage
     (must-be-logged-in)
     (when-let (area (storage-read 'area area-id))
       (must-be-member area :poster)
@@ -16,7 +16,7 @@
 (restas:define-route note/post ("/area/:area-id/issue/:issue-id/note/" :method :post)
   (:sift-variables (area-id 'integer) (issue-id 'integer))
   (:requirement #'(lambda () (post-parameter "save")))
-  (redis:with-persistent-connection ()
+  (with-storage
     (must-be-logged-in)
     (let ((issue (storage-read 'issue issue-id)))
       (when (equal area-id (storage-id (area-of issue)))
@@ -33,7 +33,7 @@
 
 (restas:define-route login/post ("/login/" :method :post)
   (:requirement #'(lambda () (post-parameter "login")))
-  (let ((user (redis:with-persistent-connection ()
+  (let ((user (with-storage
                 (storage-lookup 'user :name (post-parameter "username")))))
     (when (correct-password-p user (post-parameter "password"))
       (set-user user))
@@ -47,7 +47,7 @@
                              :name (post-parameter "username")
                              :realname (post-parameter "realname"))))
     (set-password user (post-parameter "password"))
-    (redis:with-persistent-connection ()
+    (with-storage
       (storage-create user))
     (restas:redirect 'user :id (storage-id user))))
 

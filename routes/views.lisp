@@ -1,7 +1,7 @@
 (in-package #:supportcentre)
 
 (restas:define-route area-list ("")
-  (redis:with-persistent-connection ()
+  (with-storage
     (must-be-logged-in)
     (list :title "Support Centre Areas"
           :areas (storage-read-set 'area 'area :all)
@@ -12,7 +12,7 @@
 
 (restas:define-route area ("/area/:id")
   (:sift-variables (id 'integer))
-  (redis:with-persistent-connection ()
+  (with-storage
     (must-be-logged-in)
     (when-let (area (storage-read 'area id))
       (must-be-member area :reader)
@@ -26,7 +26,7 @@
 
 (restas:define-route issue ("/area/:area-id/issue/:issue-id")
   (:sift-variables (area-id 'integer) (issue-id 'integer))
-  (redis:with-persistent-connection ()
+  (with-storage
     (must-be-logged-in)
     (when-let (issue (storage-read 'issue issue-id))
       (must-be-member (area-of issue) :reader)
@@ -42,7 +42,7 @@
 
 (restas:define-route note ("/area/:area-id/issue/:issue-id/note/:note-id")
   (:sift-variables (area-id 'integer) (issue-id 'integer) (note-id 'integer))
-  (redis:with-persistent-connection ()
+  (with-storage
     (must-be-logged-in)
     (when-let (note (storage-read 'note note-id))
       (let ((area (area-of note))
@@ -61,7 +61,7 @@
 
 (restas:define-route user ("/user/:id")
   (:sift-variables (id 'integer))
-  (redis:with-persistent-connection ()
+  (with-storage
     (must-be-logged-in)
     (when-let (user (storage-read 'user id))
       (list :title (format nil "User ~@r: ~a"
@@ -72,11 +72,10 @@
             :links (make-links (home) (get-user) (login/out))))))
 
 (restas:define-route user-list ("/user/")
-  (redis:with-persistent-connection ()
+  (with-storage
     (must-be-logged-in)
     (list :title "User list"
-          :users (redis:with-persistent-connection ()
-                   (storage-read-set 'user 'user :all))
+          :users (storage-read-set 'user 'user :all)
           :links (make-links (home) (get-user) (login/out)))))
 
 (restas:define-route register ("/register/")
@@ -85,7 +84,7 @@
 (restas:define-route file ("/file/:id/:name")
   (:sift-variables (id 'integer) (name 'string))
   (declare (ignore name))
-  (redis:with-persistent-connection ()
+  (with-storage
     (must-be-logged-in)
     (when-let (file (storage-read 'file id))
       (must-be-member (area-of file) :reader)
