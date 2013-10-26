@@ -76,10 +76,19 @@ element of the list."
              (multiple-value-bind (full rest) (truncate count page-size)
                (page-range list
                            (if (zerop rest)
-                               (1- full)
-                               full)
+                               full
+                               (1+ full))
                            page-size))))
-    (t (lrange list
-               (* page page-size)
-               (+ (* page page-size)
-                  (1- page-size))))))
+    (t (let ((i (1- page)))
+         (lrange list
+                 (* i page-size)
+                 (+ (* i page-size)
+                    (1- page-size)))))))
+
+(defun page-numbers (key &key (page-size *page-size*))
+  (let ((count (red:llen key)))
+    (multiple-value-bind (full rest) (truncate count page-size)
+      (loop for i from 1 upto (if (zerop rest)
+                                  full
+                                  (1+ full))
+            collect i))))

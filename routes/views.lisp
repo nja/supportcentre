@@ -20,7 +20,7 @@
                            (storage-id area)
                            (name-of area))
             :area area
-            :issues (issues-of area)
+            :issues (issues-of area :page :last)
             :posterp (memberp area :poster)
             :links (make-links (home) (get-user) (login/out))))))
 
