@@ -3,12 +3,16 @@
 (restas:define-route area-list ("")
   (with-storage
     (must-be-logged-in)
-    (list :title "Support Centre Areas"
-          :areas (storage-read-set 'area 'area :all)
-          :links (make-links
-                  (list :href (restas:genurl 'user-list) :text "Users")
-                  (get-user)
-                  (login/out)))))
+    (let ((*page-size* 20)
+          (areas (read-all-areas))
+          (page (get-page)))
+      (list :title "Support Centre Areas"
+            :areas (page-range areas page)
+            :pages (make-page-links (pages areas) page 'area-list)
+            :links (make-links
+                    (list :href (restas:genurl 'user-list) :text "Users")
+                    (get-user)
+                    (login/out))))))
 
 (restas:define-route area ("/area/:id")
   (:sift-variables (id 'integer))

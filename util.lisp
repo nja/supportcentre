@@ -71,7 +71,7 @@ element of the list."
 (defun pretty-time (timestamp)
   (format-timestring nil timestamp :format +rfc-1123-format+))
 
-(defun page-range (list page page-size)
+(defun page-range (list page &optional (page-size *page-size*))
   (case page
     (:all list)
     (:last (let ((count (length list)))
@@ -94,6 +94,14 @@ element of the list."
                                   full
                                   (1+ full))
             collect i))))
+
+(defun pages (list &key (page-size *page-size*))
+  (loop for x in list
+        for i = 0 then (mod (1+ i) page-size)
+        with page = 1
+        when (= i 0)
+          collect (prog1 page
+                    (incf page))))
 
 (defun pages-of (type thing)
   (nreverse (page-numbers (backref-key thing type))))

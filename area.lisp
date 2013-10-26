@@ -18,3 +18,8 @@
 
 (defmethod issues-of ((area area) &rest keys)
   (apply #'storage-read-backrefs 'issue area keys))
+
+(defun read-all-areas ()
+  (sort (storage-read-set 'area 'area :all)
+        #'string-lessp
+        :key #'name-of))
