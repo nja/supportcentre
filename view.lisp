@@ -26,3 +26,6 @@
 (defmethod finalize-page ((view view) data)
   (declare (ignore view))
   (view:main data))
+
+(defmethod closure-template:fetch-property ((timed timed) (key (eql :CHANGE-TIME)))
+  (pretty-time (change-time-of timed)))

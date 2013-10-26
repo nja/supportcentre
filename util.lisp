@@ -65,3 +65,6 @@ element of the list."
              (take start stop))
             (t
              (take (pos start) (pos stop)))))))
+
+(defun pretty-time (timestamp)
+  (format-timestring nil timestamp :format +rfc-1123-format+))
