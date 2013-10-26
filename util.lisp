@@ -99,9 +99,11 @@ element of the list."
   (loop for x in list
         for i = 0 then (mod (1+ i) page-size)
         with page = 1
+        with result
         when (= i 0)
-          collect (prog1 page
-                    (incf page))))
+          do (push page result)
+             (incf page)
+        finally (return result)))
 
 (defun pages-of (type thing)
   (nreverse (page-numbers (backref-key thing type))))
