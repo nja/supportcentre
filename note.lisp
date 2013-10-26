@@ -26,8 +26,8 @@
 (defmethod area-of ((note note))
   (area-of (issue-of note)))
 
-(defmethod files-of ((note note) &key (start 0) (stop -1))
-  (storage-read-backrefs 'file note :start start :stop stop))
+(defmethod files-of ((note note) &rest keys)
+  (apply #'storage-read-backrefs 'file note keys))
 
 (defmethod storage-update :after ((note note))
   (storage-update (issue-of note)))

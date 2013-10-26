@@ -14,8 +14,8 @@
         :creator (storage-id (user-of issue))
         :area (storage-id (area-of issue))))
 
-(defmethod notes-of ((issue issue) &key (start 0) (stop -1))
-  (storage-read-backrefs 'note issue :start start :stop stop))
+(defmethod notes-of ((issue issue) &rest keys)
+  (apply #'storage-read-backrefs 'note issue keys))
 
 (defmethod linkable-href ((issue issue))
   (values

@@ -25,14 +25,18 @@
   (red:set (lookup-key 'user :name (name-of user))
            (storage-id user)))
 
-(defmethod issues-of ((user user) &key (start 0) (stop -1))
-  (storage-read-backrefs 'issue user :start start :stop stop))
+(defmethod issues-of ((user user) &rest keys)
+  (apply #'storage-read-backrefs 'issue user keys))
 
-(defmethod notes-of ((user user) &key (start 0) (stop -1))
-  (storage-read-backrefs 'note user :start start :stop stop))
+(defmethod notes-of ((user user) &rest keys)
+  (apply #'storage-read-backrefs 'note user keys))
 
-(defmethod files-of ((user user) &key (start 0) (stop -1))
-  (lrange (mapcan #'files-of (notes-of user)) start stop))
+(defmethod files-of ((user user) &key (page :all) (page-size *page-size*))
+  (page-range (mapcan (lambda (note)
+                        (files-of note :page :all))
+                      (notes-of user))
+              page
+              page-size))
 
 (defun correct-password-p (user cleartext)
   (when (and user (stringp cleartext) (< 0 (length cleartext)))

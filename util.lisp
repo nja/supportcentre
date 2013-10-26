@@ -68,3 +68,18 @@ element of the list."
 
 (defun pretty-time (timestamp)
   (format-timestring nil timestamp :format +rfc-1123-format+))
+
+(defun page-range (list page page-size)
+  (case page
+    (:all list)
+    (:last (let ((count (length list)))
+             (multiple-value-bind (full rest) (truncate count page-size)
+               (page-range list
+                           (if (zerop rest)
+                               (1- full)
+                               full)
+                           page-size))))
+    (t (lrange list
+               (* page page-size)
+               (+ (* page page-size)
+                  (1- page-size))))))

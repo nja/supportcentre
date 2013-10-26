@@ -7,7 +7,7 @@
 (defgeneric storage-create (thing))
 (defgeneric storage-read (type id))
 (defgeneric storage-read-set (type owner set))
-(defgeneric storage-read-backrefs (type thing &key start stop))
+(defgeneric storage-read-backrefs (type thing &key page page-size))
 (defgeneric storage-update (thing))
 (defgeneric storage-lookup (type lookup value))
 (defgeneric storage-exists-p (type id))
@@ -15,6 +15,8 @@
 (defgeneric storage-dependencies (type))
 (defgeneric storage-set-add (owner set addee))
 (defgeneric storage-set-remove (owner set removee))
+
+(defparameter *page-size* 5)
 
 (defclass storable ()
   ((id :initarg :id :accessor storage-id)
@@ -161,10 +163,11 @@
                 things
                 dep-things))))))
 
-(defmethod storage-read-backrefs ((type symbol) (thing storable) &key (start 0) (stop -1))
+(defmethod storage-read-backrefs ((type symbol) (thing storable)
+                                  &key (page :all) (page-size *page-size*))
   (let* ((storage-key (backref-key thing type))
-         (ids (read-id-list storage-key :start start :stop stop)))
-    (storage-read type ids)))
+         (ids (read-id-page storage-key :page page :page-size page-size)))
+    (nreverse (storage-read type ids))))
 
 (defmethod storage-create :after ((thing storable))
   (dolist (dep (storage-dependencies thing))
@@ -217,16 +220,17 @@
 (defun read-id-list (key &key (start 0) (stop -1))
   (mapcar #'parse-integer (red:lrange key start stop)))
 
-(defparameter *page-count* 5)
-
-(defun read-id-page (key &key (page :last) (page-count *page-count*))
-  (if (eq page :last)
-      (let ((count (red:llen key)))
-        (multiple-value-bind (full rest) (truncate count page-count)
-          (read-id-page key :page (if (zerop rest)
-                                      (1- full)
-                                      full)
-                            :page-count page-count)))
-      (read-id-list key :start (* page page-count)
-                        :stop (+ (* page page-count)
-                                 (1- page-count)))))
+(defun read-id-page (key &key (page :last) (page-size *page-size*))
+  (case page
+    (:all
+     (read-id-list key))
+    (:last
+     (let ((count (red:llen key)))
+       (multiple-value-bind (full rest) (truncate count page-size)
+         (read-id-page key :page (if (zerop rest)
+                                     (1- full)
+                                     full)
+                           :page-size page-size))))
+    (t (read-id-list key :start (* page page-size)
+                         :stop (+ (* page page-size)
+                                  (1- page-size))))))
