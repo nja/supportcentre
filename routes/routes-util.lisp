@@ -6,12 +6,13 @@
        ,@body)))
 
 (defun make-links (&rest linkables)
-  (mapcar (lambda (thing)
-            (if (listp thing)
-                thing
-                (multiple-value-bind (href text) (linkable-href thing)
-                  (list :href href :text text))))
-          linkables))
+  (remove-if-not #'identity
+                 (mapcar (lambda (thing)
+                           (if (listp thing)
+                               thing
+                               (multiple-value-bind (href text) (linkable-href thing)
+                                 (list :href href :text text))))
+                         linkables)))
 
 (defun home ()
   (list :href (restas:genurl 'area-list) :text "Home"))
