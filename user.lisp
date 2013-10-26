@@ -41,10 +41,9 @@
        (ironclad:ascii-string-to-byte-array cleartext)
        digest))))
 
-(defun set-password (user cleartext)
-  (let ((digest (ironclad:pbkdf2-hash-password-to-combined-string
-                 (ironclad:ascii-string-to-byte-array cleartext))))
-    (setf (password-of user) digest)))
+(defun password-digest (cleartext)
+  (ironclad:pbkdf2-hash-password-to-combined-string
+   (ironclad:ascii-string-to-byte-array cleartext)))
 
 (defun get-user-id ()
   (when-let (user-id (hunchentoot:session-value 'user-id))
@@ -68,8 +67,8 @@
     (required password "Password"))
   (let ((user (make-instance 'user
                              :name name
-                             :realname realname)))
-    (set-password user password)
+                             :realname realname
+                             :password (password-digest password))))
     (if (red:setnx (lookup-key 'user :name (name-of user))
                    "pending")
         (values (storage-create user) "OK")
