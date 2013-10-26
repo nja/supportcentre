@@ -1,7 +1,5 @@
 (in-package #:supportcentre)
 
-(defgeneric notes-of (thing &key start stop))
-
 (defclass note (storable linkable timed)
   ((issue :initarg :issue :initform nil :accessor issue-of)
    (user :initarg :user :initform nil :accessor user-of)

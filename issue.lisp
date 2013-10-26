@@ -1,7 +1,5 @@
 (in-package #:supportcentre)
 
-(defgeneric issues-of (thing &key start stop))
-
 (defclass issue (storable linkable timed)
   ((subject :initarg :subject :accessor subject-of)
    (creator :initarg :creator :accessor user-of)

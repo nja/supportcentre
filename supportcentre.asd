@@ -27,6 +27,7 @@
                 :serial t
                 :components ((:file "package")
                              (:file "util")
+                             (:file "generics")
                              (:file "storage")
                              (:file "linkable")
                              (:file "timed")
