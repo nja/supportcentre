@@ -15,7 +15,7 @@
                          linkables)))
 
 (defun get-page ()
-  (let ((page (hunchentoot:get-parameter "page")))
+  (let ((page (get-parameter "page")))
     (or (and page (parse-integer page :junk-allowed t))
         :last)))
 
