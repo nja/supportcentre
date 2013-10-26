@@ -1,5 +1,7 @@
 (in-package #:supportcentre)
 
+(defparameter *page-size* 5)
+
 (defun safe-read (string)
   (let ((*read-eval* nil))
     (read-from-string string)))
@@ -92,3 +94,12 @@ element of the list."
                                   full
                                   (1+ full))
             collect i))))
+
+(defun pages-of (type thing)
+  (nreverse (page-numbers (backref-key thing type))))
+
+(defun minmax (&rest numbers)
+  (loop for n in numbers
+        maximizing n into max
+        minimizing n into min
+        finally (return (values min max))))

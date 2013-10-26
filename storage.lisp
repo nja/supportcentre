@@ -16,8 +16,6 @@
 (defgeneric storage-set-add (owner set addee))
 (defgeneric storage-set-remove (owner set removee))
 
-(defparameter *page-size* 5)
-
 (defclass storable ()
   ((id :initarg :id :accessor storage-id)
    (sets :initarg :sets :initform (list :all) :accessor storage-sets)))
