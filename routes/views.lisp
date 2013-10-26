@@ -79,7 +79,8 @@
           :links (make-links (home) (get-user) (login/out)))))
 
 (restas:define-route register ("/register/")
-  (list :title "Register an account"))
+  (list :title "Register an account"
+        :message (hunchentoot:get-parameter "message")))
 
 (restas:define-route file ("/file/:id/:name")
   (:sift-variables (id 'integer) (name 'string))

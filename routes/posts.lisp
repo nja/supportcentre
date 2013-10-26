@@ -48,8 +48,11 @@
                              :realname (post-parameter "realname"))))
     (set-password user (post-parameter "password"))
     (with-storage
-      (storage-create user))
-    (restas:redirect 'user :id (storage-id user))))
+      (cond ((storage-lookup 'user :name (name-of user))
+             (restas:redirect 'register
+                              :message "User name already registered"))
+            (t (storage-create user)
+               (restas:redirect 'user :id (storage-id user)))))))
 
 (restas:define-route logout ("/logout/")
   (set-user nil)
