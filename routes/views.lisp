@@ -102,4 +102,5 @@
 
 (restas:define-route login ("/login/")
   (list :title "Log in"
+        :forward (hunchentoot:get-parameter "forward")
         :links (make-links (list :href (restas:genurl 'register) :text "Register"))))
