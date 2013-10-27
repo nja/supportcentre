@@ -113,3 +113,9 @@ element of the list."
         maximizing n into max
         minimizing n into min
         finally (return (values min max))))
+
+(defun link (url text)
+  (format nil "<a href=\"~a\">~a</a>" url text))
+
+(defun gen-link (text route-symbol &rest args)
+  (link text (apply #'restas:genurl route-symbol args)))

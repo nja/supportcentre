@@ -35,3 +35,7 @@
 (defun load-note-files (notes)
   (mapc (lambda (n) (setf (slot-value n 'files) (files-of n)))
         notes))
+
+(defun markdown-notes (notes)
+  (mapc (lambda (n) (setf (text-of n) (markdown (text-of n))))
+        notes))

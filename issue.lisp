@@ -26,3 +26,10 @@
 
 (defmethod storage-update :after ((issue issue))
   (storage-update (area-of issue)))
+
+(defmethod supportcentre-markdown:issue-link (id)
+  (let ((issue (storage-read 'issue id)))
+    (if issue
+        (multiple-value-bind (url subject) (linkable-href issue)
+            (link url (format nil "Issue #~d: ~a" id subject)))
+        (format nil "Issue #~d" id))))

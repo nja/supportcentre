@@ -36,7 +36,7 @@
 {template noteRow}
   <tr>
     <td><a href="{$user.href}">{$user.name}</a></td>
-    <td>{$text}</td>
+    <td>{$text | noAutoescape}</td>
     <td>{$changeTime}</td>
     <td>
       {foreach $file in $files}

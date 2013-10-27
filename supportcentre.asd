@@ -14,19 +14,22 @@
                #:cl-redis
                #:alexandria
                #:ironclad
-               #:local-time)
+               #:local-time
+               #:3bmd)
   :in-order-to ((test-op (test-op #:supportcentre-test)))
-  :components ((:module "templates"
+  :components ((:file "package")
+               (:module "templates"
                 :components ((:closure-template "main")
                              (:closure-template "user")
                              (:closure-template "issue")
                              (:closure-template "login")
                              (:closure-template "area")))
+               (:module "markdown"
+                :components ((:file "markdown")))
                (:module "base"
                 :pathname ""
                 :serial t
-                :components ((:file "package")
-                             (:file "util")
+                :components ((:file "util")
                              (:file "generics")
                              (:file "storage")
                              (:file "linkable")

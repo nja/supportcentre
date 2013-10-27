@@ -41,7 +41,9 @@
                              (storage-id issue)
                              (subject-of issue))
               :issue issue
-              :notes (load-note-files (notes-of issue :page (get-page)))
+              :notes (load-note-files
+                      (markdown-notes
+                       (notes-of issue :page (get-page))))
               :area (area-of issue)
               :posterp (memberp (area-of issue) :poster)
               :links (make-links (home) (area-of issue) (get-user) (login/out))
