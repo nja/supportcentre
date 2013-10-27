@@ -172,14 +172,16 @@
     (add-backref dep thing)))
 
 (defun cache-read (type id)
-  (or (when *read-cache* (gethash (cons type id) *read-cache*))
+  (or (when *read-cache*
+        (let ((key (cons type id)))
+          (declare (dynamic-extent key))
+          (gethash key *read-cache*)))
       (storage-read type id)))
 
 (defun cache-add (thing)
   (if *read-cache*
-      (setf (gethash (cons (storage-type thing) (storage-id thing))
-                     *read-cache*)
-            thing)
+      (let ((key (cons (storage-type thing) (storage-id thing))))
+        (setf (gethash key *read-cache*) thing))
       thing))
 
 (defun add-backref (dep thing)
