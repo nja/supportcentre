@@ -2,9 +2,14 @@
 
 (restas:define-route note/redirect ("/note/:id")
   (:sift-variables (id 'integer))
-  (when-let (note (redis:with-persistent-connection ()
-                    (storage-read 'note id)))
-    (restas:redirect 'note
-                     :area-id (storage-id (area-of note))
-                     :issue-id (storage-id (issue-of note))
-                     :note-id (storage-id note))))
+  (with-storage
+    (must-be-logged-in)
+    (when-let (note (storage-read 'note id))
+      (hunchentoot:redirect (linkable-href note)))))
+
+(restas:define-route issue/redirect ("/issue/:id")
+  (:sift-variables (id 'integer))
+  (with-storage
+    (must-be-logged-in)
+    (when-let (issue (storage-read 'issue id))
+      (hunchentoot:redirect (linkable-href issue)))))
