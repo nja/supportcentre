@@ -1,5 +1,19 @@
 (in-package #:supportcentre)
 
+(restas:define-route area/post ("/area/" :method :post)
+  (:requirement #'(lambda () (post-parameter "save")))
+  (with-storage
+    (must-be-member 'user :admin)
+    (multiple-value-bind (area message) (create-new-area (post-parameter "name")
+                                                         (get-user))
+      (if area
+          (let ((user (get-user)))
+            (storage-set-add area :reader user)
+            (storage-set-add area :post user)
+            (restas:redirect 'area :id (storage-id area)))
+          (restas:redirect 'area-list :message message)))))
+
+
 (restas:define-route issue/post ("/area/:area-id/issue/" :method :post)
   (:sift-variables (area-id 'integer))
   (:requirement #'(lambda () (post-parameter "save")))

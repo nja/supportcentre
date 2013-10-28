@@ -112,6 +112,9 @@
 (defmethod storage-read-set ((type symbol) (owner storable) set)
   (storage-read type (read-id-set (thing-set-key owner set))))
 
+(defmethod storage-set-add ((owner symbol) set (addee storable))
+  (red:sadd (set-key owner set) (storage-id addee)))
+
 (defmethod storage-set-add ((owner storable) set (addee storable))
   (red:sadd (thing-set-key owner set) (storage-id addee)))
 

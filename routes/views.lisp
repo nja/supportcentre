@@ -9,6 +9,7 @@
       (list :title "Support Centre Areas"
             :areas (page-range areas page)
             :pages (make-page-links (pages areas) page 'area-list)
+            :adminp (memberp 'user :admin)
             :links (make-links
                     (list :href (restas:genurl 'user-list) :text "Users")
                     (get-user)

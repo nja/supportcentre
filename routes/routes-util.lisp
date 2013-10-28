@@ -48,7 +48,9 @@
     (restas:redirect 'login :forward (url-encode (hunchentoot:request-uri*)))))
 
 (defun memberp (thing set)
-  (let ((member-ids (read-id-set (thing-set-key thing set)))
+  (let ((member-ids (read-id-set (if (symbolp thing)
+                                     (set-key thing set)
+                                     (thing-set-key thing set))))
         (user-id (get-user-id)))
     (member user-id member-ids)))
 
