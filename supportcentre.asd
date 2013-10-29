@@ -15,7 +15,8 @@
                #:alexandria
                #:ironclad
                #:local-time
-               #:3bmd)
+               #:3bmd
+               #:jsown)
   :in-order-to ((test-op (test-op #:supportcentre-test)))
   :components ((:file "package")
                (:module "templates"

@@ -71,6 +71,9 @@ element of the list."
 (defun pretty-time (timestamp)
   (format-timestring nil timestamp :format +rfc-1123-format+))
 
+(defun iso-time (timestamp)
+  (format-timestring nil timestamp :format +iso-8601-format+))
+
 (defun page-range (list page &optional (page-size *page-size*))
   (case page
     (:all list)
