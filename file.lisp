@@ -40,8 +40,9 @@
    (ironclad:digest-file :sha1 path)))
 
 (defun hash-subpath (hash)
-  (let ((dir (concatenate 'string (subseq hash 0 2) "/"))
-        (name (subseq hash 2)))
+  (let* ((prefix-len 2)
+         (dir (concatenate 'string (subseq hash 0 prefix-len) "/"))
+         (name (subseq hash prefix-len)))
     (merge-pathnames name dir)))
 
 (defun in-file-directory (path)
