@@ -176,7 +176,8 @@
                 dep-things))))))
 
 (defmethod storage-read-backrefs ((type symbol) (thing storable)
-                                  &key (page :all) (page-size *page-size*))
+                                  &key (page :all) (page-size *page-size*)
+                                    (sorted nil))
   (let ((storage-key (backref-key thing type)))
     (multiple-value-bind (ids start) (read-id-page storage-key
                                                    :page page
@@ -233,21 +234,27 @@
 (defun read-id-set (key)
   (mapcar #'parse-integer (red:smembers key)))
 
-(defun read-id-list (key &key (start 0) (stop -1))
-  (mapcar #'parse-integer (red:lrange key start stop)))
+(defun read-id-list (key &key (start 0) (stop -1) (sorted nil))
+  (let ((ids (if sorted
+                 (red:zrange key start stop)
+                 (red:lrange key start stop))))
+    (mapcar #'parse-integer ids)))
 
-(defun read-id-page (key &key (page :last) (page-size *page-size*))
+(defun read-id-page (key &key (page :last) (page-size *page-size*) (sorted nil))
   (case page
     (:all
-     (values (read-id-list key) 0))
+     (values (read-id-list key :sorted sorted) 0))
     (:last
-     (let ((count (red:llen key)))
+     (let ((count (if sorted
+                      (red:zcard key)
+                      (red:llen key))))
        (multiple-value-bind (full rest) (truncate count page-size)
          (read-id-page key :page (if (zerop rest)
                                      full
                                      (1+ full))
-                           :page-size page-size))))
+                           :page-size page-size
+                           :sorted sorted))))
     (t (let* ((i (1- page))
               (start (* i page-size))
               (stop (+ start (1- page-size))))
-         (values (read-id-list key :start start :stop stop) start)))))
+         (values (read-id-list key :start start :stop stop :sorted sorted) start)))))
