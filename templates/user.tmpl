@@ -8,7 +8,7 @@
 {template userList}
   <table>
     <tr><th>Id</th><th>Username</th><th>Real name</th></tr>
-    {foreach $user in $users}
+    {foreach $user in $userList}
       {call userRow data="$user" /}
     {/foreach}
   </table>

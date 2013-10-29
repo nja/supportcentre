@@ -6,8 +6,8 @@
     (let ((*page-size* 20)
           (areas (read-all-areas))
           (page (get-page)))
-      (list :title "Support Centre Areas"
-            :areas (page-range areas page)
+      (list :area-list (page-range areas page)
+            :title "Support Centre Areas"
             :pages (make-page-links (pages areas) page 'area-list)
             :adminp (memberp 'user :admin)
             :links (make-links
@@ -88,10 +88,10 @@
     (must-be-logged-in)
     (let ((users (read-all-users))
           (page (get-page)))
-     (list :title "User list"
-           :users (page-range users page)
-           :pages (make-page-links (pages users) page 'user-list)
-           :links (make-links (home) (get-user) (login/out))))))
+      (list :user-list (page-range users page)
+            :title "User list"
+            :pages (make-page-links (pages users) page 'user-list)
+            :links (make-links (home) (get-user) (login/out))))))
 
 (restas:define-route register ("/register/")
   (list :title "Register an account"

@@ -3,7 +3,7 @@
 {template areaList}
   <table>
     <tr><th>Id</th><th>Name</th><th>Owner</th><th>Last change</th></tr>
-    {foreach $area in $areas}
+    {foreach $area in $areaList}
       {call areaRow data="$area" /}
     {/foreach}
   </table>
