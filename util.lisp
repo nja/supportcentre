@@ -80,9 +80,7 @@ element of the list."
     (:last (let ((count (length list)))
              (multiple-value-bind (full rest) (truncate count page-size)
                (page-range list
-                           (if (zerop rest)
-                               full
-                               (1+ full))
+                           (+ full (min 1 rest))
                            page-size))))
     (t (let ((i (1- page)))
          (lrange list
@@ -93,9 +91,7 @@ element of the list."
 (defun page-numbers (key &key (page-size *page-size*))
   (let ((count (red:llen key)))
     (multiple-value-bind (full rest) (truncate count page-size)
-      (loop for i from 1 upto (if (zerop rest)
-                                  full
-                                  (1+ full))
+      (loop for i from 1 upto (+ full (min 1 rest))
             collect i))))
 
 (defun pages (list &key (page-size *page-size*))
@@ -122,3 +118,11 @@ element of the list."
 
 (defun gen-link (text route-symbol &rest args)
   (link text (apply #'restas:genurl route-symbol args)))
+
+(defun reverse-index-from (list offset)
+  (loop with result
+        for index upfrom offset
+        for thing in list
+        do (setf (index-of thing) index)
+           (push thing result)
+        finally (return result)))

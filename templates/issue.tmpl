@@ -21,7 +21,7 @@
 {template issue}
   <h1>Issue #{$issue.id}: {$issue.subject}</h1>
   <table>
-    <tr><th>User</th><th>Text</th><th>Time</th><th>Attachments</th></tr>
+    <tr><th>#</th><th>User</th><th>Text</th><th>Time</th><th>Attachments</th></tr>
     {foreach $note in $notes}
       {call noteRow data="$note" /}
     {/foreach}
@@ -35,6 +35,7 @@
 
 {template noteRow}
   <tr>
+    <td><a href="?note={$index + 1}">{$index + 1}</a></td>
     <td><a href="{$user.href}">{$user.name}</a></td>
     <td>{$text | noAutoescape}</td>
     <td>{$changeTime}</td>

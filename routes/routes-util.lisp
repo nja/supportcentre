@@ -14,10 +14,16 @@
                                  (list :href href :text text))))
                          linkables)))
 
+(defun get-int-parameter (name)
+  (let ((value (get-parameter name)))
+    (when value
+      (parse-integer value :junk-allowed t))))
+
 (defun get-page ()
-  (let ((page (get-parameter "page")))
-    (or (and page (parse-integer page :junk-allowed t))
-        :last)))
+  (or (get-int-parameter "page")
+      (when-let (note (get-int-parameter "note"))
+        (1+ (truncate (1- note) *page-size*)))
+      :last))
 
 (defun make-page-links (numbers current route-symbol &rest args)
   (multiple-value-bind (min max) (apply #'minmax numbers)

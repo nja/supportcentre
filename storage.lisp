@@ -19,7 +19,8 @@
 
 (defclass storable ()
   ((id :initarg :id :accessor storage-id)
-   (sets :initarg :sets :initform (list :all) :accessor storage-sets)))
+   (sets :initarg :sets :initform (list :all) :accessor storage-sets)
+   (index :initarg nil :accessor index-of)))
 
 (defmethod print-object ((thing storable) stream)
   (print-unreadable-object (thing stream :type t :identity t)
@@ -176,9 +177,11 @@
 
 (defmethod storage-read-backrefs ((type symbol) (thing storable)
                                   &key (page :all) (page-size *page-size*))
-  (let* ((storage-key (backref-key thing type))
-         (ids (read-id-page storage-key :page page :page-size page-size)))
-    (nreverse (storage-read type ids))))
+  (let ((storage-key (backref-key thing type)))
+    (multiple-value-bind (ids start) (read-id-page storage-key
+                                                   :page page
+                                                   :page-size page-size)
+      (reverse-index-from (storage-read type ids) start))))
 
 (defmethod storage-create :after ((thing storable))
   (dolist (dep (storage-dependencies thing))
@@ -236,7 +239,7 @@
 (defun read-id-page (key &key (page :last) (page-size *page-size*))
   (case page
     (:all
-     (read-id-list key))
+     (values (read-id-list key) 0))
     (:last
      (let ((count (red:llen key)))
        (multiple-value-bind (full rest) (truncate count page-size)
@@ -244,7 +247,7 @@
                                      full
                                      (1+ full))
                            :page-size page-size))))
-    (t (let ((i (1- page)))
-         (read-id-list key :start (* i page-size)
-                           :stop (+ (* i page-size)
-                                    (1- page-size)))))))
+    (t (let* ((i (1- page))
+              (start (* i page-size))
+              (stop (+ start (1- page-size))))
+         (values (read-id-list key :start start :stop stop) start)))))
