@@ -15,6 +15,7 @@
 (defgeneric storage-dependencies (type))
 (defgeneric storage-set-add (owner set addee))
 (defgeneric storage-set-remove (owner set removee))
+(defgeneric storage-set-member-p (owner set testee))
 
 (defclass storable ()
   ((id :initarg :id :accessor storage-id)
@@ -120,6 +121,15 @@
 
 (defmethod storage-set-remove ((owner storable) set (removee storable))
   (red:srem (thing-set-key owner set) (storage-id removee)))
+
+(defmethod storage-set-member-p ((owner symbol) set (id integer))
+  (red:sismember (set-key owner set) id))
+
+(defmethod storage-set-member-p ((owner storable) set (id integer))
+  (red:sismember (thing-set-key owner set) id))
+
+(defmethod storage-set-member-p (owner set (testee storable))
+  (call-next-method owner set (storage-id testee)))
 
 (defmethod storage-lookup ((type symbol) (lookup symbol) value)
   (when-let (id (red:get (lookup-key type lookup value)))
