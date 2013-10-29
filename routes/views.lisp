@@ -94,11 +94,12 @@
             :links (make-links (home) (get-user) (login/out))))))
 
 (restas:define-route register ("/register/")
-  (list :title "Register an account"
-        :username (get-parameter "username")
-        :realname (get-parameter "realname")
-        :message (get-parameter "message")
-        :links (make-links (home) (get-user) (login/out))))
+  (with-storage
+    (list :title "Register an account"
+          :username (get-parameter "username")
+          :realname (get-parameter "realname")
+          :message (get-parameter "message")
+          :links (make-links (home) (get-user) (login/out)))))
 
 (restas:define-route file ("/file/:id/:name")
   (:sift-variables (id 'integer) (name 'string))
