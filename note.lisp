@@ -1,6 +1,6 @@
 (in-package #:supportcentre)
 
-(defclass note (storable linkable timed)
+(defclass note (storable linkable)
   ((issue :initarg :issue :initform nil :accessor issue-of)
    (user :initarg :user :initform nil :accessor user-of)
    (text :initarg :text :initform "" :accessor text-of)

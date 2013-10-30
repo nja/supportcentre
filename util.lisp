@@ -89,7 +89,7 @@ element of the list."
                     (1- page-size)))))))
 
 (defun page-numbers (key &key (page-size *page-size*))
-  (let ((count (red:llen key)))
+  (let ((count (red:zcard key)))
     (multiple-value-bind (full rest) (truncate count page-size)
       (loop for i from 1 upto (+ full (min 1 rest))
             collect i))))

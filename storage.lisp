@@ -17,7 +17,7 @@
 (defgeneric storage-set-remove (owner set removee))
 (defgeneric storage-set-member-p (owner set testee))
 
-(defclass storable ()
+(defclass storable (timed)
   ((id :initarg :id :accessor storage-id)
    (sets :initarg :sets :initform (list :all) :accessor storage-sets)
    (index :initarg nil :accessor index-of)))
@@ -176,17 +176,16 @@
                 dep-things))))))
 
 (defmethod storage-read-backrefs ((type symbol) (thing storable)
-                                  &key (page :all) (page-size *page-size*)
-                                    (sorted nil))
+                                  &key (page :all) (page-size *page-size*))
   (let ((storage-key (backref-key thing type)))
     (multiple-value-bind (ids start) (read-id-page storage-key
                                                    :page page
                                                    :page-size page-size)
       (reverse-index-from (storage-read type ids) start))))
 
-(defmethod storage-create :after ((thing storable))
+(defmethod storage-update :after ((thing storable))
   (dolist (dep (storage-dependencies thing))
-    (add-backref dep thing)))
+    (update-backref dep thing)))
 
 (defun cache-read (type id)
   (or (when *read-cache*
@@ -201,8 +200,10 @@
         (setf (gethash key *read-cache*) thing))
       thing))
 
-(defun add-backref (dep thing)
-  (red:rpush (backref-key dep (storage-type thing)) (storage-id thing)))
+(defun update-backref (dep thing)
+  (red:zadd (backref-key dep (storage-type thing))
+            (timestamp-to-unix (change-time-of thing))
+            (storage-id thing)))
 
 (defun next-id-key (storable)
   (make-key 'next-id (storage-type storable)))
@@ -234,27 +235,22 @@
 (defun read-id-set (key)
   (mapcar #'parse-integer (red:smembers key)))
 
-(defun read-id-list (key &key (start 0) (stop -1) (sorted nil))
-  (let ((ids (if sorted
-                 (red:zrange key start stop)
-                 (red:lrange key start stop))))
+(defun read-id-list (key &key (start 0) (stop -1))
+  (let ((ids (red:zrange key start stop)))
     (mapcar #'parse-integer ids)))
 
-(defun read-id-page (key &key (page :last) (page-size *page-size*) (sorted nil))
+(defun read-id-page (key &key (page :last) (page-size *page-size*))
   (case page
     (:all
-     (values (read-id-list key :sorted sorted) 0))
+     (values (read-id-list key) 0))
     (:last
-     (let ((count (if sorted
-                      (red:zcard key)
-                      (red:llen key))))
+     (let ((count (red:zcard key)))
        (multiple-value-bind (full rest) (truncate count page-size)
          (read-id-page key :page (if (zerop rest)
                                      full
                                      (1+ full))
-                           :page-size page-size
-                           :sorted sorted))))
+                           :page-size page-size))))
     (t (let* ((i (1- page))
               (start (* i page-size))
               (stop (+ start (1- page-size))))
-         (values (read-id-list key :start start :stop stop :sorted sorted) start)))))
+         (values (read-id-list key :start start :stop stop) start)))))
