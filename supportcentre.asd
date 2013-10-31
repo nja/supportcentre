@@ -7,7 +7,7 @@
   :serial t
   :description "Support Issue Tracker"
   :author "Johan Andersson <nilsjohanandersson@gmail.com>"
-  :license "Proprietary"
+  :license "MIT"
   :defsystem-depends-on (#:closure-template)
   :depends-on (#:restas
                #:closure-template
