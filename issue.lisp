@@ -4,7 +4,11 @@
   ((subject :initarg :subject :accessor subject-of)
    (creator :initarg :creator :accessor user-of)
    (area :initarg :area :accessor area-of)
-   (status :initarg :status :initform :open :accessor status-of)))
+   (status :initarg :status :initform :open :accessor status-of)
+   (priority :initarg :priority :initform :information :accessor priority-of)))
+
+(defparameter *issue-statuses* '(:open :resolved :closed))
+(defparameter *issue-priorities* '(:information :low :high :very-high))
 
 (defmethod storage-dependencies ((type (eql 'issue)))
   '((user-of user)
@@ -14,7 +18,8 @@
   (list :subject (subject-of issue)
         :creator (storage-id (user-of issue))
         :area (storage-id (area-of issue))
-        :status (status-of issue)))
+        :status (status-of issue)
+        :priority (priority-of issue)))
 
 (defmethod notes-of ((issue issue) &rest keys)
   (apply #'storage-read-backrefs 'note issue keys))
@@ -26,17 +31,16 @@
                   :issue-id (storage-id issue))
    (subject-of issue)))
 
-(defparameter *issue-statuses* '(:open :resolved :closed))
-
 (defmethod storage-update :after ((issue issue))
   (storage-update (area-of issue))
-  (update-status issue))
-
-(defun update-status (issue)
   (redis:with-pipelining
-    (dolist (status (remove (status-of issue) *issue-statuses*))
-      (storage-set-remove 'issue status issue))
-    (storage-set-add 'issue (status-of issue) issue)))
+    (update-sets 'issue issue (status-of issue) *issue-statuses*)
+    (update-sets 'issue issue (priority-of issue) *issue-priorities*)))
+
+(defun update-sets (owner thing value possible-values)
+  (dolist (non-value (remove value possible-values))
+    (storage-set-remove owner non-value thing))
+  (storage-set-add owner value thing))
 
 (defmethod supportcentre-markdown:issue-link (id)
   (let ((issue (storage-read 'issue id)))
