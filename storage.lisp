@@ -123,6 +123,9 @@
 (defmethod storage-set-remove ((owner storable) set (removee storable))
   (red:srem (thing-set-key owner set) (storage-id removee)))
 
+(defmethod storage-set-remove ((owner symbol) set (removee storable))
+  (red:srem (set-key owner set) (storage-id removee)))
+
 (defmethod storage-set-member-p ((owner symbol) set (id integer))
   (red:sismember (set-key owner set) id))
 
